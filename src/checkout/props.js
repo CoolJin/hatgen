@@ -727,8 +727,14 @@ export function createProps({ stage, quality = 'high' }) {
     state.sparkT = 0;
   }
 
-  // Everything hidden, back at rest (the crate panels, label and pallet are reused).
+  // Everything hidden, back at rest (the crate panels and pallet are reused). The label
+  // texture holds the entered name and city: it is dropped, not kept for the next order.
   function reset() {
+    if (labelMat.map) {
+      labelMat.map.dispose();
+      labelMat.map = null;
+      labelMat.needsUpdate = true;
+    }
     Object.assign(state, {
       pallet: -0.17, clipGlow: 0, straps: 0, strapFloor: PALLET.h, ring: 0, ringPulse: 0,
       base: 0, front: 0, back: 0, left: 0, right: 0, lid: 0, crateKick: 0, label: 0, flash: 0, sparkT: 99, spin: 0,
