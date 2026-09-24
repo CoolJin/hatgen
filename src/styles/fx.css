@@ -1,1 +1,197 @@
-/* Touch and scroll feel effects */
+/* Touch and scroll feel effects (src/fx). Layering: above the page content and the callouts,
+   below the side progress (40), mobile menu (45), header (50) and dialogs. */
+
+/* Horizontal drags on the page turn the product (vertical scrolling and pinch zoom stay
+   native). Only once the 3D is up; nothing on the page pans horizontally. */
+html.fx-swipe main {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Finger FX overlay ---------------------------------------------------------------------- */
+.fx-touch {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 38;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh; /* the URL bar showing / hiding never resizes the backing store */
+  pointer-events: none;
+  visibility: hidden;
+  contain: strict;
+}
+
+.fx-touch.is-on {
+  visibility: visible;
+}
+
+/* Speed glow: red edges that follow the scroll velocity --------------------------------- */
+.fx-speed {
+  position: fixed;
+  inset: 0;
+  z-index: 37;
+  pointer-events: none;
+  visibility: hidden;
+  contain: strict;
+}
+
+.fx-speed.is-on {
+  visibility: visible;
+}
+
+.fx-speed > i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.fx-speed__edge {
+  top: 0;
+  bottom: 0;
+  box-shadow:
+    inset 0 0 clamp(60px, 14vw, 180px) clamp(4px, 1.2vw, 16px) rgba(186, 43, 41, 0.55),
+    inset 0 0 clamp(18px, 3.5vw, 40px) rgba(255, 51, 51, 0.5);
+}
+
+/* the leading edge (where new content comes from) glows a little more */
+.fx-speed__lead {
+  height: 34%;
+}
+
+.fx-speed__lead--top {
+  top: 0;
+  transform-origin: 50% 0;
+  background: linear-gradient(180deg, rgba(255, 51, 51, 0.34) 0%, rgba(186, 43, 41, 0.12) 38%, rgba(186, 43, 41, 0) 100%);
+}
+
+.fx-speed__lead--bottom {
+  bottom: 0;
+  transform-origin: 50% 100%;
+  background: linear-gradient(0deg, rgba(255, 51, 51, 0.34) 0%, rgba(186, 43, 41, 0.12) 38%, rgba(186, 43, 41, 0) 100%);
+}
+
+/* "Wischen zum Drehen" hint (phones, hero) ------------------------------------------------ */
+.fx-hint {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 13px 4px 9px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgba(14, 4, 4, 0.62);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 51, 51, 0.12);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.9s var(--ease-out);
+}
+
+.fx-hint.is-in {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.fx-hint.is-out {
+  opacity: 0;
+  transform: translate(-50%, -6px);
+  transition-duration: 0.5s;
+}
+
+.fx-hint__label {
+  margin-right: -0.2em;
+}
+
+.fx-hint__icon {
+  flex: none;
+  width: 30px;
+  height: 20px;
+  overflow: visible;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fx-hint__arrow {
+  stroke: var(--red);
+  filter: drop-shadow(0 0 3px rgba(255, 51, 51, 0.7));
+  animation: fx-hint-arrow 1.8s var(--ease-in-out) infinite;
+}
+
+.fx-hint__hand {
+  stroke: var(--text);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: fx-hint-hand 1.8s var(--ease-in-out) infinite;
+}
+
+.fx-hint__tap {
+  fill: rgba(255, 51, 51, 0.35);
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: fx-hint-tap 1.8s var(--ease-in-out) infinite;
+}
+
+@keyframes fx-hint-hand {
+  0%,
+  100% {
+    transform: translateX(-7px) rotate(-6deg);
+  }
+  50% {
+    transform: translateX(7px) rotate(6deg);
+  }
+}
+
+@keyframes fx-hint-arrow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes fx-hint-tap {
+  0%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-hint,
+  .fx-hint.is-in,
+  .fx-hint.is-out {
+    transform: translate(-50%, 0);
+    transition: opacity 0.3s linear;
+  }
+
+  .fx-hint__arrow,
+  .fx-hint__hand,
+  .fx-hint__tap {
+    animation: none;
+  }
+}

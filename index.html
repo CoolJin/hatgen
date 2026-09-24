@@ -99,6 +99,13 @@
       <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-home" viewBox="0 0 64 64"><path d="M8 29 32 10l24 19"/><path d="M14 24.5V54h36V24.5"/><path d="M34 26 25.5 39h7.5l-2.5 10.5L39 36h-7.5L34 26z"/><path d="M4 54h56"/></symbol>
       <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-crane" viewBox="0 0 64 64"><path d="M16 56V14M22 56V14"/><path d="m16 20 6 5-6 5 6 5-6 5 6 5-6 5 6 5"/><path d="M19 6 16 14h6z"/><path d="M6 14h52M22 19h36"/><path d="m22 14 5 5 5-5 5 5 5-5 5 5 5-5 5 5"/><path d="M19 6 6 14M19 6l39 8"/><path d="M6 14v6h7v-6"/><path d="M48 19v14"/><path d="M44 33h8v6h-8z"/><path d="M8 56h24M40 56h16"/></symbol>
       <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-factory" viewBox="0 0 64 64"><path d="M6 56V30l12 8v-8l12 8v-8l12 8V12h9v44"/><path d="M42 12h9"/><path d="M4 56h56"/><path d="M13 47h6M24 47h6M35 47h6"/><path d="M46.5 20v6M46.5 32v6"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-minus" viewBox="0 0 24 24"><path d="M5.5 12h13"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-bank" viewBox="0 0 48 48"><path d="M6 18 24 7l18 11z"/><path d="M10 22v13M19 22v13M29 22v13M38 22v13"/><path d="M6 40h36"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-wallet" viewBox="0 0 48 48"><path d="M8 14.5h28a4 4 0 0 1 4 4V36a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z"/><path d="M8 15.5 30.5 8.2a3 3 0 0 1 3.9 2.9v3.4"/><path d="M40 23h-7.5a3.5 3.5 0 0 0 0 7H40"/><circle cx="33" cy="26.5" r=".9"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-cash" viewBox="0 0 48 48"><rect x="5" y="13" width="38" height="22" rx="3"/><circle cx="24" cy="24" r="5"/><path d="M11 19v10M37 19v10"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-box" viewBox="0 0 48 48"><path d="M24 5 41 14v20L24 43 7 34V14z"/><path d="M7 14l17 9 17-9M24 23v20"/><path d="m15.5 9.5 17 9"/></symbol>
       <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-mobile" viewBox="0 0 64 64"><rect x="14" y="16" width="36" height="26" rx="3"/><path d="M20 24h12M20 30h8"/><rect x="38" y="22" width="7" height="7" rx="1"/><path d="M50 22h6V12"/><circle cx="22" cy="48.5" r="5"/><circle cx="43" cy="48.5" r="5"/><path d="M4 28h6M2 34h8M6 40h5"/></symbol>
     </defs>
   </svg>
@@ -185,7 +192,7 @@
         </ul>
       </nav>
       <div class="header__actions">
-        <a class="btn btn--primary btn--sm header__cta" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-magnetic>
+        <a class="btn btn--primary btn--sm header__cta" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-checkout data-magnetic>
           <span class="btn__label">Jetzt bestellen</span>
         <span class="sr-only"> (öffnet in neuem Tab)</span></a>
         <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen">
@@ -208,7 +215,7 @@
       </ol>
     </nav>
     <div class="menu__foot">
-      <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop>
+      <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-checkout>
         <span class="btn__label">Jetzt bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
       <span class="sr-only"> (öffnet in neuem Tab)</span></a>
       <div class="menu__contact">
@@ -531,8 +538,8 @@
               <span class="price__note">inkl. MwSt., zzgl. Versandkosten</span>
             </div>
             <div class="btn-row">
-              <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-magnetic>
-                <span class="btn__label">Jetzt im Shop bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
+              <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-checkout data-magnetic>
+                <span class="btn__label">Jetzt bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
               <span class="sr-only"> (öffnet in neuem Tab)</span></a>
               <a class="btn btn--ghost" href="tel:+497176452100" data-magnetic>
                 <svg class="btn__icon btn__icon--lead" aria-hidden="true"><use href="#i-phone"/></svg><span class="btn__label">Anrufen: 07176 / 452100</span>
@@ -738,7 +745,7 @@
           <h2 class="h2 kontakt__title" id="kontakt-title" data-reveal="lines">Bereit, wenn Sie es sind.</h2>
           <p class="sub" data-reveal="fade">Bestellen Sie direkt im Shop oder lassen Sie sich persönlich beraten.</p>
           <div class="btn-row kontakt__actions" data-reveal="fade">
-            <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-magnetic>
+            <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-checkout data-magnetic>
               <span class="btn__label">Jetzt bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
             <span class="sr-only"> (öffnet in neuem Tab)</span></a>
             <a class="btn btn--ghost" href="tel:+497176452100" data-magnetic>
@@ -799,6 +806,260 @@
       </div>
     </div>
   </footer>
+
+  <!-- CHECKOUT (demo: nothing is sent, nothing is stored) -->
+  <div class="checkout" id="checkout" role="dialog" aria-modal="true" aria-labelledby="co-title" aria-describedby="co-intro" hidden>
+    <div class="co-visual" aria-hidden="true"><img src="./img/poster.jpg" alt="" decoding="async" loading="lazy" onerror="this.remove()"></div>
+    <div class="co-scrim" aria-hidden="true"></div>
+    <div class="co-hud" aria-hidden="true">
+      <span class="co-hud__k"></span>
+      <span class="co-hud__v"></span>
+    </div>
+
+    <div class="co-panel">
+      <span class="co-grip" aria-hidden="true"></span>
+      <header class="co-head">
+        <div class="co-head__top">
+          <span class="co-chip"><i aria-hidden="true"></i>Nur Demo</span>
+          <button class="co-close" type="button" aria-label="Bestellung schließen"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+        </div>
+        <div class="co-head__row">
+          <h2 class="co-title" id="co-title"><span class="hatgen">HATGEN</span> bestellen</h2>
+          <div class="co-total" aria-hidden="true">
+            <span class="co-total__label">Zwischensumme</span>
+            <b class="co-total__val">1.039,00&nbsp;€</b>
+          </div>
+        </div>
+        <p class="sr-only" id="co-intro">Demo-Bestellung in vier Schritten. Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert.</p>
+        <ol class="co-steps">
+          <li class="co-steps__item" data-i="0"><button class="co-steps__btn" type="button" data-go="0"><span class="co-steps__idx">01</span><span class="co-steps__label">Modell</span></button></li>
+          <li class="co-steps__item" data-i="1"><button class="co-steps__btn" type="button" data-go="1"><span class="co-steps__idx">02</span><span class="co-steps__label">Lieferung</span></button></li>
+          <li class="co-steps__item" data-i="2"><button class="co-steps__btn" type="button" data-go="2"><span class="co-steps__idx">03</span><span class="co-steps__label">Daten</span></button></li>
+          <li class="co-steps__item" data-i="3"><button class="co-steps__btn" type="button" data-go="3"><span class="co-steps__idx">04</span><span class="co-steps__label">Prüfen</span></button></li>
+        </ol>
+        <div class="co-bar" aria-hidden="true"><i></i></div>
+      </header>
+
+      <form class="co-form" method="dialog" novalidate autocomplete="on">
+        <div class="co-body" data-lenis-prevent>
+
+          <!-- 1 · Modell & Menge -->
+          <section class="co-step" data-step="0" aria-labelledby="co-h0">
+            <h3 class="co-h" id="co-h0" tabindex="-1">Welche Leistung brauchen Sie?</h3>
+            <fieldset class="co-choice">
+              <legend class="co-label">Modell</legend>
+              <label class="co-card">
+                <input class="co-card__input" type="radio" name="model" value="s5500" checked>
+                <span class="co-card__body">
+                  <span class="co-card__top"><span class="co-card__name">S5500-5DS</span><span class="co-card__price" data-price="s5500">1.039,00&nbsp;€</span></span>
+                  <span class="co-card__meta"><b>5,5&nbsp;kW</b> max. · 5.000&nbsp;W Dauerleistung bei 400&nbsp;V</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+              <label class="co-card">
+                <input class="co-card__input" type="radio" name="model" value="s6500">
+                <span class="co-card__body">
+                  <span class="co-card__top"><span class="co-card__name">S6500-5DS</span><span class="co-card__price" data-price="s6500">1.288,00&nbsp;€</span></span>
+                  <span class="co-card__meta"><b>6,5&nbsp;kW</b> max. · 6.000&nbsp;W Dauerleistung bei 400&nbsp;V</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+            </fieldset>
+
+            <div class="co-qty">
+              <span class="co-label" id="co-qty-label">Menge</span>
+              <div class="co-stepper">
+                <button class="co-stepper__btn" type="button" data-qty="-1" aria-label="Menge verringern"><svg aria-hidden="true"><use href="#i-minus"/></svg></button>
+                <span class="co-stepper__val" role="spinbutton" tabindex="0" aria-labelledby="co-qty-label" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" aria-valuetext="1 Gerät">1</span>
+                <button class="co-stepper__btn" type="button" data-qty="1" aria-label="Menge erhöhen"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
+              </div>
+              <span class="co-qty__note">bis 5&nbsp;Geräte je Bestellung</span>
+            </div>
+
+            <ul class="co-incl" role="list">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>12-V-Batterie mit 30&nbsp;Ah im Lieferumfang</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>2&nbsp;Jahre Gewährleistung</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Beratung und Service aus Ruppertshofen</li>
+            </ul>
+          </section>
+
+          <!-- 2 · Lieferung -->
+          <section class="co-step" data-step="1" aria-labelledby="co-h1" hidden>
+            <h3 class="co-h" id="co-h1" tabindex="-1">Wie kommt er zu Ihnen?</h3>
+            <fieldset class="co-choice">
+              <legend class="co-label">Lieferart</legend>
+              <label class="co-card co-card--icon">
+                <input class="co-card__input" type="radio" name="delivery" value="versand" checked>
+                <span class="co-card__icon" aria-hidden="true"><svg><use href="#i-truck"/></svg></span>
+                <span class="co-card__body">
+                  <span class="co-card__top"><span class="co-card__name">Versand per Spedition</span><span class="co-card__price" data-ship-price>118,00&nbsp;€</span></span>
+                  <span class="co-card__meta">ca. 2&nbsp;Werktage · auf Palette, fest verzurrt</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+              <label class="co-card co-card--icon">
+                <input class="co-card__input" type="radio" name="delivery" value="abholung">
+                <span class="co-card__icon" aria-hidden="true"><svg><use href="#i-store"/></svg></span>
+                <span class="co-card__body">
+                  <span class="co-card__top"><span class="co-card__name">Abholung in Ruppertshofen</span><span class="co-card__price co-card__price--free">kostenlos</span></span>
+                  <span class="co-card__meta">sofort ab Lager · Vorführung unter Last möglich</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+            </fieldset>
+            <div class="co-note" data-when="versand">
+              <svg aria-hidden="true"><use href="#i-box"/></svg>
+              <p><b>Versand je Gerät <span data-ship-unit>118,00&nbsp;€</span>.</b> Das Aggregat reist verzurrt auf einer Palette per Spedition zu Ihnen. Lieferzeit ca. 2&nbsp;Werktage.</p>
+            </div>
+            <div class="co-note" data-when="abholung" hidden>
+              <svg aria-hidden="true"><use href="#i-pin"/></svg>
+              <p><b>Heinze Automatisierungstechnik</b><br>Utzstetter Str. 7/2 · 73577&nbsp;Ruppertshofen<br>Gern führen wir Ihnen das Aggregat vor Ort unter Last vor. <a class="link" href="https://www.google.com/maps/search/?api=1&amp;query=Utzstetter+Str.+7%2F2%2C+73577+Ruppertshofen" target="_blank" rel="noopener">Route planen<svg aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a></p>
+            </div>
+          </section>
+
+          <!-- 3 · Ihre Daten -->
+          <section class="co-step" data-step="2" aria-labelledby="co-h2" hidden>
+            <h3 class="co-h" id="co-h2" tabindex="-1">Ihre Daten</h3>
+            <p class="co-lead">Nur für diese Demo. Nichts davon verlässt Ihren Browser.</p>
+            <div class="co-grid">
+              <div class="co-field" data-field="firstName">
+                <label for="co-first">Vorname</label>
+                <input id="co-first" name="firstName" type="text" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" required aria-describedby="co-first-err">
+                <p class="co-err" id="co-first-err"></p>
+              </div>
+              <div class="co-field" data-field="lastName">
+                <label for="co-last">Nachname</label>
+                <input id="co-last" name="lastName" type="text" autocomplete="family-name" autocapitalize="words" enterkeyhint="next" required aria-describedby="co-last-err">
+                <p class="co-err" id="co-last-err"></p>
+              </div>
+              <div class="co-field co-field--full" data-field="company">
+                <label for="co-company">Firma <span class="co-opt">optional</span></label>
+                <input id="co-company" name="company" type="text" autocomplete="organization" enterkeyhint="next" aria-describedby="co-company-err">
+                <p class="co-err" id="co-company-err"></p>
+              </div>
+              <div class="co-field" data-field="email">
+                <label for="co-email">E-Mail</label>
+                <input id="co-email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" required aria-describedby="co-email-err">
+                <p class="co-err" id="co-email-err"></p>
+              </div>
+              <div class="co-field" data-field="phone">
+                <label for="co-phone">Telefon</label>
+                <input id="co-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" required aria-describedby="co-phone-err">
+                <p class="co-err" id="co-phone-err"></p>
+              </div>
+            </div>
+            <fieldset class="co-addr">
+              <legend class="co-label"><span data-when="versand">Lieferadresse</span><span data-when="abholung" hidden>Rechnungsadresse <span class="co-opt">optional</span></span></legend>
+              <div class="co-grid">
+                <div class="co-field co-field--full" data-field="street">
+                  <label for="co-street">Straße und Hausnummer <span class="co-opt" data-when="abholung" hidden>optional</span></label>
+                  <input id="co-street" name="street" type="text" autocomplete="address-line1" enterkeyhint="next" aria-describedby="co-street-err">
+                  <p class="co-err" id="co-street-err"></p>
+                </div>
+                <div class="co-field co-field--zip" data-field="zip">
+                  <label for="co-zip">PLZ <span class="co-opt" data-when="abholung" hidden>optional</span></label>
+                  <input id="co-zip" name="zip" type="text" autocomplete="postal-code" inputmode="numeric" maxlength="5" enterkeyhint="next" aria-describedby="co-zip-err">
+                  <p class="co-err" id="co-zip-err"></p>
+                </div>
+                <div class="co-field co-field--city" data-field="city">
+                  <label for="co-city">Ort <span class="co-opt" data-when="abholung" hidden>optional</span></label>
+                  <input id="co-city" name="city" type="text" autocomplete="address-level2" enterkeyhint="next" aria-describedby="co-city-err">
+                  <p class="co-err" id="co-city-err"></p>
+                </div>
+              </div>
+            </fieldset>
+            <div class="co-field co-field--full" data-field="note">
+              <label for="co-note">Anmerkung <span class="co-opt">optional</span></label>
+              <textarea id="co-note" name="note" rows="3" maxlength="500" aria-describedby="co-note-err"></textarea>
+              <p class="co-err" id="co-note-err"></p>
+            </div>
+          </section>
+
+          <!-- 4 · Zahlung & Prüfen -->
+          <section class="co-step" data-step="3" aria-labelledby="co-h3" hidden>
+            <h3 class="co-h" id="co-h3" tabindex="-1">Zahlung &amp; Prüfen</h3>
+            <fieldset class="co-choice co-choice--pay">
+              <legend class="co-label">Zahlungsart</legend>
+              <label class="co-card co-card--icon co-card--compact">
+                <input class="co-card__input" type="radio" name="payment" value="transfer" checked>
+                <span class="co-card__icon" aria-hidden="true"><svg><use href="#i-bank"/></svg></span>
+                <span class="co-card__body">
+                  <span class="co-card__name">Überweisung / Vorkasse</span>
+                  <span class="co-card__meta">Bankverbindung mit der Auftragsbestätigung</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+              <label class="co-card co-card--icon co-card--compact">
+                <input class="co-card__input" type="radio" name="payment" value="paypal">
+                <span class="co-card__icon" aria-hidden="true"><svg><use href="#i-wallet"/></svg></span>
+                <span class="co-card__body">
+                  <span class="co-card__name">PayPal</span>
+                  <span class="co-card__meta">Bezahlen über Ihr PayPal-Konto</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+              <label class="co-card co-card--icon co-card--compact" data-when="abholung" hidden>
+                <input class="co-card__input" type="radio" name="payment" value="cash">
+                <span class="co-card__icon" aria-hidden="true"><svg><use href="#i-cash"/></svg></span>
+                <span class="co-card__body">
+                  <span class="co-card__name">Barzahlung bei Abholung</span>
+                  <span class="co-card__meta">Bequem vor Ort in Ruppertshofen bezahlen</span>
+                </span>
+                <span class="co-card__tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              </label>
+            </fieldset>
+
+            <div class="co-summary" role="group" aria-labelledby="co-sum-h">
+              <p class="co-label" id="co-sum-h">Übersicht</p>
+              <dl class="co-lines" data-summary-lines></dl>
+              <div class="co-sumtotal">
+                <span>Gesamtsumme</span>
+                <b data-sum-total>1.157,00&nbsp;€</b>
+              </div>
+              <p class="co-vat" data-sum-vat></p>
+              <div class="co-recap" data-summary-recap></div>
+            </div>
+
+            <div class="co-field co-field--check" data-field="privacy">
+              <label class="co-check">
+                <input type="checkbox" name="privacy" id="co-privacy" aria-describedby="co-privacy-err">
+                <span class="co-check__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+                <span class="co-check__txt">Ich habe die <a class="link" href="https://heinze-at.de/de/privacy" target="_blank" rel="noopener">Datenschutzerklärung<span class="sr-only"> (öffnet in neuem Tab)</span></a> gelesen.</span>
+              </label>
+              <p class="co-err" id="co-privacy-err"></p>
+            </div>
+          </section>
+
+          <!-- 5 · Erfolg -->
+          <section class="co-step co-done" data-step="4" aria-labelledby="co-h4" hidden>
+            <div class="co-done__seal" aria-hidden="true">
+              <svg viewBox="0 0 120 120"><circle class="co-done__ring" cx="60" cy="60" r="52"/><circle class="co-done__ring2" cx="60" cy="60" r="44"/><path class="co-done__tick" d="M40 61.5 54 75.5 81 46"/></svg>
+            </div>
+            <p class="co-done__no"><span>Bestellnummer (Demo)</span><b data-order-no>HAT-2026-0000</b></p>
+            <h3 class="co-done__h" id="co-h4" tabindex="-1">Vielen Dank!</h3>
+            <p class="co-done__lead" data-when="versand">Ihr <span class="hatgen">HATGEN</span> ist verpackt, verzurrt und bereit für die Spedition.</p>
+            <p class="co-done__lead" data-when="abholung" hidden>Ihr <span class="hatgen">HATGEN</span> läuft sich schon warm. Wir freuen uns auf Ihren Besuch in Ruppertshofen.</p>
+            <p class="co-demo co-demo--strong"><b>Demo:</b> Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert. Bestellen können Sie im Heinze-Shop oder telefonisch.</p>
+            <dl class="co-done__sum" data-done-sum></dl>
+            <div class="btn-row co-done__actions">
+              <button class="btn btn--primary" type="button" data-co-close><span class="btn__label">Zurück zur Seite</span></button>
+              <a class="btn btn--ghost" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener"><span class="btn__label">Im Heinze-Shop ansehen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a>
+            </div>
+            <a class="co-phone" href="tel:+497176452100"><svg aria-hidden="true"><use href="#i-phone"/></svg>Fragen? 07176 / 452100</a>
+          </section>
+        </div>
+
+        <footer class="co-foot">
+          <div class="co-foot__row">
+            <button class="btn btn--ghost co-back" type="button"><svg class="btn__icon btn__icon--lead co-back__icon" aria-hidden="true"><use href="#i-arrow"/></svg><span class="btn__label">Zurück</span></button>
+            <button class="btn btn--primary co-next" type="submit"><span class="btn__label">Weiter</span><svg class="btn__icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+          <p class="co-demo" id="co-demo" hidden><b>Demo:</b> Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert.</p>
+        </footer>
+      </form>
+      <p class="sr-only" aria-live="polite" data-co-live></p>
+    </div>
+  </div>
 
   <script type="module" src="./src/main.js"></script>
 </body>
