@@ -32,7 +32,7 @@ const RULES = {
   },
   phone: (v) => {
     if (!v) return 'Bitte geben Sie eine Telefonnummer für Rückfragen ein.';
-    if (!/^[+0-9 ()/.-]+$/.test(v)) return 'Bitte nur Ziffern, Leerzeichen und die Zeichen + ( ) / verwenden.';
+    if (!/^[+0-9 ()/.-]+$/.test(v)) return 'Bitte nur Ziffern, Leerzeichen, Punkte, Bindestriche und + ( ) / verwenden.';
     if (v.replace(/\D/g, '').length < 6) return 'Die Telefonnummer ist zu kurz.';
     return '';
   },
@@ -67,7 +67,11 @@ export function createFlow(root, hooks = {}) {
   const back = root.querySelector('.co-back');
   const next = root.querySelector('.co-next');
   const nextLabel = next.querySelector('.btn__label');
-  const foot = root.querySelector('.co-foot');
+  const panel = root.querySelector('.co-panel');
+  const navRow = root.querySelector('.co-foot__nav');
+  const doneRow = root.querySelector('.co-foot__done');
+  const privacyField = root.querySelector('.co-field[data-field="privacy"]');
+  const shopLine = root.querySelector('.co-shopline');
   const demo = root.querySelector('#co-demo');
   const live = root.querySelector('[data-co-live]');
   const badge = root.querySelector('.co-total');
@@ -169,7 +173,7 @@ export function createFlow(root, hooks = {}) {
     if (state.step === 0) set(root.classList.contains('has-3d') ? `360° · ${coarse ? 'Wischen' : 'Ziehen'} zum Drehen` : 'Ihre Auswahl', `${wordmark} ${esc(t.model.name)} · ${esc(t.model.kw)}${NB}kW`);
     else if (state.step === 1)
       state.delivery === 'versand'
-        ? set('Versand · Spedition', `Palette · 2 Spanngurte · ca. ${COMMON.shippingDays}${NB}Werktage`)
+        ? set('Versand · Spedition', `${state.qty > 1 ? `${state.qty}${NB}Paletten · je 2 Spanngurte` : 'Palette · 2 Spanngurte'} · ca. ${COMMON.shippingDays}${NB}Werktage`)
         : set('Abholung', `73577${NB}Ruppertshofen · Vorführung unter Last`);
     else if (state.step === 2) set('Ihre Daten', 'bleiben in Ihrem Browser');
     else if (state.step === 3) set('Prüfen', `Gesamt ${esc(fmtPrice(t.total))}`);

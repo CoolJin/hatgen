@@ -182,8 +182,10 @@ export function initCheckout() {
       },
     });
     animating = tl;
+    // Only opacity / transforms on anything that holds focus: `visibility: hidden` (autoAlpha)
+    // would make the focus() below fail silently on fast machines.
     if (reducedMotion) {
-      tl.fromTo(root, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, clearProps: 'opacity,visibility' });
+      tl.fromTo(root, { opacity: 0 }, { opacity: 1, duration: 0.25, clearProps: 'opacity' });
     } else {
       tl.fromTo(scrim, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.9, ease: 'power2.out' }, 0);
       if (stacked) tl.fromTo(panel, { yPercent: 104 }, { yPercent: 0, duration: 0.95, ease: 'expo.out' }, 0.1);
@@ -194,11 +196,17 @@ export function initCheckout() {
           { clipPath: 'inset(0% 0% 0% 0% round 26px)', x: 0, duration: 1.05, ease: 'expo.inOut' },
           0.05
         );
-      tl.fromTo(targets, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.045, clearProps: 'opacity,visibility,transform' }, stacked ? 0.35 : 0.5);
+      tl.fromTo(targets, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.045, clearProps: 'opacity,transform' }, stacked ? 0.35 : 0.5);
       tl.fromTo(hudEl, { autoAlpha: 0, x: 16 }, { autoAlpha: 1, x: 0, duration: 0.9, ease: 'expo.out', clearProps: 'opacity,visibility,transform' }, 1.0);
       tl.set(panel, { clearProps: 'clipPath,transform' });
     }
-    requestAnimationFrame(() => root.querySelector('#co-h0')?.focus({ preventScroll: true }));
+    // focus into the dialog right away (and once more after the first frame, in case a
+    // late layout change dropped it)
+    const h0 = root.querySelector('#co-h0');
+    h0?.focus({ preventScroll: true });
+    requestAnimationFrame(() => {
+      if (isOpen && !root.contains(document.activeElement)) h0?.focus({ preventScroll: true });
+    });
   }
 
   function close({ fromPop = false } = {}) {
@@ -210,6 +218,7 @@ export function initCheckout() {
     const stacked = isStacked();
     const done = () => {
       root.hidden = true;
+      root.classList.remove('is-typing');
       html.classList.remove('checkout-open');
       gsap.set([root, panel, scrim, hudEl], { clearProps: 'all' });
       animating = null;
@@ -217,7 +226,7 @@ export function initCheckout() {
     };
     const tl = gsap.timeline({ onComplete: done });
     animating = tl;
-    if (reducedMotion) tl.to(root, { autoAlpha: 0, duration: 0.2 });
+    if (reducedMotion) tl.to(root, { opacity: 0, duration: 0.2 });
     else {
       if (stacked) tl.to(panel, { yPercent: 104, duration: 0.6, ease: 'expo.in' }, 0);
       else tl.to(panel, { clipPath: 'inset(0% 100% 0% 0% round 26px)', x: -30, duration: 0.7, ease: 'expo.inOut' }, 0);
@@ -254,8 +263,10 @@ export function initCheckout() {
   }
 
   // ---------------------------------------------------------------- keyboard
-  root.addEventListener('keydown', (e) => {
-    if (!isOpen) return;
+  // On the document, not the dialog: Escape and the Tab trap must work even when focus
+  // has dropped to <body> (e.g. the focused control was hidden by a step change).
+  document.addEventListener('keydown', (e) => {
+    if (!isOpen || e.defaultPrevented) return;
     if (e.key === 'Escape') {
       e.preventDefault();
       close();
@@ -266,10 +277,11 @@ export function initCheckout() {
     if (!items.length) return;
     const first = items[0];
     const last = items[items.length - 1];
-    if (e.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+    const inside = panel.contains(document.activeElement) && document.activeElement !== panel;
+    if (e.shiftKey && (document.activeElement === first || !inside)) {
       e.preventDefault();
       last.focus();
-    } else if (!e.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+    } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
       e.preventDefault();
       first.focus();
     }
@@ -383,6 +395,56 @@ export function initCheckout() {
     el.addEventListener('pointerup', onPullEnd);
     el.addEventListener('pointercancel', onPullEnd);
   }
+
+  // ---------------------------------------------------------------- typing on phones
+  // The on-screen keyboard overlays the page (iOS, Chrome for Android): while a text field
+  // has focus, the sheet grows to the visible viewport (visualViewport) and the focused
+  // field is centred in the scroll body, so the field and the Weiter button stay visible.
+  const body = root.querySelector('.co-body');
+  const vv = window.visualViewport;
+  let typingTimer = 0;
+  let centerTimer = 0;
+  const isTextField = (el) =>
+    !!el && body.contains(el) && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(radio|checkbox)$/.test(el.type)));
+
+  function syncViewport() {
+    if (!vv) return;
+    root.style.setProperty('--vvh', `${Math.round(vv.height)}px`);
+    root.style.setProperty('--vvt', `${Math.round(vv.offsetTop)}px`);
+  }
+  function setTyping(on) {
+    if (on) syncViewport();
+    if (root.classList.contains('is-typing') === on) return;
+    root.classList.toggle('is-typing', on);
+  }
+  function centerSoon(el) {
+    clearTimeout(centerTimer);
+    const run = () => flow.reveal(el);
+    requestAnimationFrame(run);
+    // once more after the sheet has grown / the keyboard has settled
+    centerTimer = setTimeout(run, 420);
+  }
+  root.addEventListener('focusin', (e) => {
+    if (!isOpen || !isStacked() || !isTextField(e.target)) return;
+    clearTimeout(typingTimer);
+    setTyping(true);
+    centerSoon(e.target);
+  });
+  root.addEventListener('focusout', () => {
+    clearTimeout(typingTimer);
+    // a short grace period: moving between fields must not collapse the sheet, and a tap
+    // on Weiter must hit the button before the layout changes under the finger
+    typingTimer = setTimeout(() => {
+      if (!isTextField(document.activeElement)) setTyping(false);
+    }, 220);
+  });
+  const onViewport = () => {
+    if (!isOpen || !root.classList.contains('is-typing')) return;
+    syncViewport();
+    if (isTextField(document.activeElement)) centerSoon(document.activeElement);
+  };
+  vv?.addEventListener('resize', onViewport, { passive: true });
+  vv?.addEventListener('scroll', onViewport, { passive: true });
 
   // ---------------------------------------------------------------- layout
   let resizeTimer = 0;

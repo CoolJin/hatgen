@@ -1303,16 +1303,55 @@
 }
 
 .spec-group dl > div {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(120px, 36%) 1fr;
   gap: 20px;
   padding: 15px 0 14px;
   border-bottom: 1px solid var(--line);
-  transition: background-color 0.3s;
 }
 
-.spec-group dl > div:hover {
-  background: linear-gradient(90deg, rgba(255, 51, 51, 0.05), rgba(255, 51, 51, 0));
+/* Row hover: a soft glow layer that bleeds past the text edge (so it never starts with a
+   hard cut) plus a small accent bar; both fade/scale in, so the transition stays smooth. */
+.spec-group dl > div::before,
+.spec-group dl > div::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.spec-group dl > div::before {
+  z-index: -1;
+  inset: 1px -18px 1px -18px;
+  border-radius: 12px;
+  background:
+    radial-gradient(90% 160% at 0% 50%, rgba(255, 51, 51, 0.1), rgba(255, 51, 51, 0) 72%),
+    linear-gradient(90deg, rgba(255, 220, 215, 0.035), rgba(255, 220, 215, 0) 80%);
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-soft);
+}
+
+.spec-group dl > div::after {
+  left: -18px;
+  top: 30%;
+  bottom: 30%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--red);
+  box-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+  transform: scaleY(0);
+  transition: transform 0.5s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .spec-group dl > div:hover::before {
+    opacity: 1;
+  }
+
+  .spec-group dl > div:hover::after {
+    transform: scaleY(1);
+  }
 }
 
 .spec-group dt {

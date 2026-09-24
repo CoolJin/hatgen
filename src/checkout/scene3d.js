@@ -235,7 +235,11 @@ export function createScene3D() {
       fx.orbit = ((((fx.orbit + 180) % 360) + 360) % 360) - 180;
       tl.to(fx, { power: 0, running: 0, flash: 0, kick: 0, bright: 0, duration: 0.4 }, 0);
       tl.to(fx, { orbit: 0, duration: dur, ease: 'power3.inOut' }, 0);
-      if (props) {
+      if (props && reducedMotion) {
+        // no motion: props gone at once, unit back on the floor
+        props.reset();
+        A.lift = 0;
+      } else if (props) {
         const s = props.state;
         // crate panels fly off, straps come off, pallet sinks, unit back on the floor
         const panelsOut = { front: 0, back: 0, left: 0, right: 0, lid: 0, base: 0, label: 0 };
