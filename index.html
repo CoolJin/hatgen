@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="de" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>HATGEN Silent Dieselgenerator · Heinze Automatisierungstechnik</title>
+  <meta name="description" content="Schallgedämmter HATGEN Dieselgenerator S5500-5DS / S6500-5DS: 5,5 oder 6,5 kW, 230 V und 400 V gleichzeitig, AVR und Elektrostart. Service von Heinze.">
+  <meta name="theme-color" content="#0a0202">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./src/ui/icons/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./src/ui/icons/apple-touch-icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:site_name" content="Heinze Automatisierungstechnik">
+  <meta property="og:title" content="HATGEN Silent Dieselgenerator · Unabhängig. Auf Knopfdruck.">
+  <meta property="og:description" content="Schallgedämmter Dieselgenerator mit 5,5 oder 6,5 kW. 230 V und 400 V gleichzeitig, AVR-geregelt, mit Elektrostart.">
+  <meta property="og:url" content="https://cooljin.github.io/hatgen/">
+  <meta property="og:image" content="https://cooljin.github.io/hatgen/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HATGEN S5500-5DS Silent-Dieselgenerator">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script>
+    // Early flags: JS is running (the loader is shown). Failsafe: if the UI never boots, hide the loader.
+    (function (d) {
+      var h = d.documentElement;
+      h.classList.remove('no-js');
+      h.classList.add('js');
+      setTimeout(function () { if (!window.__hatUI) h.classList.add('loader-failsafe'); }, 12000);
+    })(document);
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "HATGEN Silent Dieselgenerator S5500-5DS / S6500-5DS",
+    "description": "Schallgedämmter Dieselgenerator mit 5,5 oder 6,5 kW, 230 V und 400 V gleichzeitig nutzbar, AVR-Spannungsregelung, Elektrostart mit Schlüssel, 15-Liter-Tank.",
+    "image": "https://cooljin.github.io/hatgen/img/og.jpg",
+    "brand": { "@type": "Brand", "name": "HATGEN" },
+    "category": "Stromerzeuger",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "HATGEN S5500-5DS",
+        "sku": "S5500-5DS",
+        "price": "1039.00",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "url": "https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65",
+        "shippingDetails": {
+          "@type": "OfferShippingDetails",
+          "shippingRate": { "@type": "MonetaryAmount", "value": "118.00", "currency": "EUR" },
+          "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "DE" }
+        },
+        "seller": { "@type": "Organization", "name": "Heinze Automatisierungstechnik" }
+      },
+      {
+        "@type": "Offer",
+        "name": "HATGEN S6500-5DS",
+        "sku": "S6500-5DS",
+        "price": "1288.00",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "url": "https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65",
+        "shippingDetails": {
+          "@type": "OfferShippingDetails",
+          "shippingRate": { "@type": "MonetaryAmount", "value": "118.00", "currency": "EUR" },
+          "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "DE" }
+        },
+        "seller": { "@type": "Organization", "name": "Heinze Automatisierungstechnik" }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <canvas id="webgl" aria-hidden="true"></canvas>
+
+  <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="hat-mark" viewBox="0 0 650 247"><path fill-rule="evenodd" d="M211.2 244.8L212.5 242.5L213.1 242.0L213.8 241.5L220.4 230.7L227.0 219.9L227.0 219.4L227.0 218.9L229.8 214.7L232.7 210.5L234.1 207.2L235.5 204.0L236.2 204.0L237.0 204.0L237.0 202.9L237.0 201.9L240.0 197.5L243.0 193.1L243.0 192.2L243.0 191.2L243.8 190.8L244.5 190.5L247.2 186.3L250.0 182.0L250.0 181.5L250.0 180.9L252.8 176.7L255.6 172.5L257.0 169.5L258.5 166.5L264.5 157.0L270.5 147.5L272.0 144.5L273.5 141.5L275.2 139.6L277.0 137.6L277.0 136.8L277.0 135.9L281.2 129.7L285.5 123.5L287.6 119.5L289.7 115.5L292.1 111.0L294.5 106.5L295.2 106.2L296.0 105.8L296.0 104.4L296.0 103.0L296.9 103.0L297.8 103.0L298.3 101.2L298.9 99.5L301.6 95.0L304.2 90.6L307.6 85.3L311.0 80.0L311.0 79.0L311.0 78.0L312.0 78.0L313.0 78.0L313.0 76.5L313.0 75.0L314.0 75.0L315.0 75.0L315.0 73.9L315.0 72.9L318.0 68.5L321.0 64.1L321.0 63.6L321.0 63.0L325.5 56.0L330.0 49.0L330.0 48.0L330.0 47.0L330.8 47.0L331.6 47.0L333.0 43.5L334.4 40.0L335.1 40.0L335.8 40.0L336.3 38.2L336.9 36.5L339.6 32.0L342.2 27.5L344.8 24.0L347.4 20.5L348.7 19.2L350.0 17.9L350.7 16.6L351.5 15.4L358.2 10.3L364.9 5.2L369.7 4.0L374.5 2.8L377.9 2.3L381.3 1.7L388.7 3.6L396.0 5.4L396.0 6.2L396.0 7.0L397.3 7.0L398.6 7.0L400.0 9.0L401.4 11.0L402.3 11.0L403.1 11.0L405.5 13.5L408.0 15.9L408.0 17.2L408.0 18.6L410.0 20.0L412.0 21.4L412.0 23.0L412.0 24.6L414.0 26.0L416.0 27.4L416.0 29.0L416.0 30.6L418.0 32.0L420.0 33.4L420.0 35.2L420.0 37.0L421.0 37.0L422.0 37.0L422.0 38.8L422.0 40.6L424.0 42.0L426.0 43.4L426.0 45.2L426.0 47.0L427.0 47.0L428.0 47.0L428.0 49.0L428.0 51.0L428.8 51.0L429.6 51.0L432.1 56.0L434.5 61.0L435.1 61.0L435.8 61.0L437.0 64.0L438.2 67.0L439.1 67.0L440.0 67.0L440.0 69.0L440.0 71.0L441.0 71.0L442.0 71.0L442.0 73.0L442.0 75.0L442.9 75.0L443.8 75.0L445.0 78.0L446.2 81.0L447.1 81.0L448.0 81.0L448.0 83.0L448.0 85.0L448.9 85.0L449.8 85.0L451.0 88.0L452.2 91.0L453.1 91.0L454.0 91.0L454.0 93.0L454.0 95.0L455.0 95.0L456.0 95.0L456.0 96.9L456.0 98.8L456.8 99.2L457.5 99.5L459.8 102.7L462.0 105.9L462.0 107.5L462.0 109.0L463.0 109.0L464.0 109.0L464.0 111.0L464.0 113.0L464.9 113.0L465.8 113.0L467.0 116.0L468.2 119.0L469.1 119.0L470.0 119.0L470.0 120.5L470.0 122.1L471.0 123.3L472.0 124.5L474.0 126.9L476.0 129.3L476.0 131.2L476.0 133.0L477.0 133.0L478.0 133.0L478.0 135.0L478.0 137.0L478.9 137.0L479.8 137.0L481.0 140.0L482.2 143.0L483.1 143.0L484.0 143.0L484.0 144.5L484.0 146.1L485.0 147.3L486.0 148.5L488.0 150.9L490.0 153.3L490.0 155.2L490.0 157.0L491.0 157.0L492.0 157.0L492.0 159.0L492.0 161.0L492.9 161.0L493.8 161.0L495.0 164.0L496.2 167.0L497.1 167.0L498.0 167.0L498.0 169.0L498.0 171.0L498.9 171.0L499.9 171.0L500.5 173.0L501.1 175.0L502.0 175.0L502.8 175.0L503.5 172.2L504.2 169.5L504.3 108.5L504.3 47.5L503.6 45.3L502.9 43.0L473.7 43.0L444.5 43.0L440.0 36.0L435.5 28.9L434.5 27.7L433.5 26.5L432.0 23.5L430.6 20.5L428.5 17.8L426.5 15.2L424.3 12.3L422.0 9.5L422.0 8.7L422.0 7.9L420.5 6.3L418.9 4.8L419.9 3.6L420.8 2.5L535.2 2.5L649.5 2.5L649.8 22.8L650.0 43.0L602.0 43.0L554.0 43.0L554.0 145.0L554.0 247.0L518.2 247.0L482.5 246.9L481.0 245.7L479.5 244.5L478.0 241.5L476.6 238.5L473.8 234.3L471.0 230.1L471.0 229.5L471.0 228.9L464.5 218.9L458.0 208.9L458.0 208.0L458.0 207.0L457.2 207.0L456.5 207.0L454.7 203.2L453.0 199.5L450.0 194.5L447.0 189.5L445.6 186.5L444.3 183.5L441.6 181.2L439.0 179.0L383.5 179.0L328.0 179.0L328.0 177.7L328.0 176.4L331.0 172.4L333.9 168.5L334.0 167.2L334.0 166.0L335.0 166.0L336.0 166.0L336.0 164.6L336.0 163.2L336.9 162.8L337.7 162.5L341.4 156.8L345.0 151.1L345.0 150.0L345.0 149.0L346.0 149.0L347.0 149.0L347.0 147.7L347.0 146.3L350.4 142.4L353.7 138.5L381.8 138.9L409.9 139.2L411.9 138.5L414.0 137.9L414.0 135.4L414.0 133.0L413.2 133.0L412.3 133.0L409.9 128.2L407.5 123.5L400.3 112.0L393.1 100.5L388.6 93.5L384.2 86.4L382.9 83.7L381.7 81.0L381.0 81.0L380.2 81.0L379.0 78.0L377.8 75.0L377.3 75.0L376.9 75.0L375.4 76.4L374.0 77.9L374.0 79.4L374.0 81.0L373.1 81.0L372.2 81.0L371.0 84.0L369.8 87.0L368.9 87.0L368.0 87.0L368.0 89.0L368.0 91.0L367.1 91.0L366.2 91.0L365.0 94.0L363.8 97.0L362.9 97.0L362.0 97.0L362.0 99.0L362.0 101.0L361.1 101.0L360.2 101.0L359.0 104.0L357.8 107.0L356.9 107.0L356.0 107.0L356.0 108.8L356.0 110.6L354.0 112.0L352.0 113.4L352.0 115.2L352.0 117.0L351.1 117.0L350.2 117.0L349.0 120.0L347.8 123.0L346.9 123.0L346.0 123.0L346.0 125.0L346.0 127.0L345.1 127.0L344.2 127.0L343.0 130.0L341.8 133.0L340.9 133.0L340.0 133.0L340.0 135.0L340.0 137.0L339.1 137.0L338.2 137.0L337.0 140.0L335.8 143.0L334.9 143.0L334.0 143.0L334.0 144.8L334.0 146.6L332.0 148.0L330.0 149.4L330.0 151.2L330.0 153.0L329.1 153.0L328.2 153.0L327.0 156.0L325.8 159.0L324.9 159.0L324.0 159.0L324.0 161.0L324.0 163.0L323.1 163.0L322.2 163.0L321.0 166.0L319.8 169.0L318.9 169.0L318.0 169.0L318.0 171.0L318.0 173.0L317.1 173.0L316.2 173.0L315.0 176.0L313.8 179.0L312.9 179.0L312.0 179.0L312.0 180.8L312.0 182.6L310.0 184.0L308.0 185.4L308.0 187.2L308.0 189.0L307.1 189.0L306.2 189.0L305.0 192.0L303.8 195.0L302.9 195.0L302.0 195.0L302.0 197.0L302.0 199.0L301.1 199.0L300.2 199.0L299.0 202.0L297.8 205.0L296.9 205.0L296.0 205.0L296.0 207.0L296.0 209.0L295.1 209.0L294.2 209.0L293.0 212.0L291.8 215.0L290.9 215.0L290.0 215.0L290.0 216.8L290.0 218.6L288.0 220.0L286.0 221.4L286.0 223.2L286.0 225.0L285.1 225.0L284.2 225.0L283.0 228.0L281.8 231.0L280.9 231.0L280.0 231.0L280.0 233.0L280.0 235.0L279.1 235.0L278.2 235.0L277.0 238.0L275.8 241.0L274.9 241.0L274.0 241.0L274.0 242.6L274.0 244.1L272.6 245.6L271.1 247.0L240.6 247.0L210.0 247.0L211.2 244.8ZM1.0 244.2L1.0 243.5L0.9 122.6L0.9 1.7L2.2 0.8L3.5 0.0L26.5 0.3L49.5 0.5L49.8 122.8L50.0 245.0L25.5 245.0L1.0 245.0L1.0 244.2ZM199.5 206.2L200.2 193.5L200.6 169.5L201.0 145.5L199.8 143.2L198.7 141.0L130.9 141.0L63.1 141.0L62.5 140.0L61.8 138.9L62.0 120.7L62.1 102.5L62.9 101.7L63.8 100.8L130.1 100.8L196.5 100.9L198.9 99.3L201.2 97.8L200.7 94.7L200.1 91.5L200.0 47.2L199.8 2.9L201.0 1.5L202.2 -0.0L224.4 0.0L246.5 0.0L247.8 0.8L249.1 1.7L248.8 72.0L248.5 142.3L247.2 142.8L246.0 143.2L246.0 144.9L246.0 146.6L244.0 148.0L242.0 149.4L242.0 151.2L242.0 153.0L241.0 153.0L240.0 153.0L240.0 154.8L240.0 156.6L238.0 158.0L236.0 159.4L236.0 161.2L236.0 163.0L235.0 163.0L234.0 163.0L234.0 164.8L234.0 166.6L232.0 168.0L230.0 169.4L230.0 171.2L230.0 173.0L229.0 173.0L228.0 173.0L228.0 174.8L228.0 176.6L226.0 178.0L224.0 179.4L224.0 181.2L224.0 183.0L223.0 183.0L222.0 183.0L222.0 184.8L222.0 186.6L220.0 188.0L218.0 189.4L218.0 191.2L218.0 193.0L217.0 193.0L216.0 193.0L216.0 194.8L216.0 196.6L214.0 198.0L212.0 199.4L212.0 201.2L212.0 203.0L211.0 203.0L210.0 203.0L210.0 204.8L210.0 206.6L208.0 208.0L206.0 209.4L206.0 211.2L206.0 213.0L205.0 213.0L204.0 213.0L204.0 214.6L204.0 216.1L202.6 217.6L201.1 219.0L199.9 219.0L198.7 219.0L199.5 206.2Z"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-ext" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-down" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-phone" viewBox="0 0 24 24"><path d="M5.5 3.5h3l1.5 4.2-2 1.3a11 11 0 0 0 7 7l1.3-2 4.2 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 3.5 5.7a2 2 0 0 1 2-2.2z"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6.5L20.5 7"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5s-7-6.3-7-12a7 7 0 0 1 14 0c0 5.7-7 12-7 12z"/><circle cx="12" cy="9.5" r="2.6"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-shield" viewBox="0 0 48 48"><path d="M24 5 9 10.5v11.3C9 31.6 15.4 39.6 24 43c8.6-3.4 15-11.4 15-21.2V10.5z"/><path d="m17 24 5 5 9.5-10"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-truck" viewBox="0 0 48 48"><path d="M4 11h25v22H4z"/><path d="M29 18h8.5l6 7.5V33H29"/><circle cx="12" cy="35" r="3.8"/><circle cx="35.5" cy="35" r="3.8"/><path d="M8 17h9M8 22h6"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-store" viewBox="0 0 48 48"><path d="M24 43S11 31.3 11 20.5a13 13 0 0 1 26 0C37 31.3 24 43 24 43z"/><path d="M18.5 21.5 24 16l5.5 5.5M20.5 19.5V26h7v-6.5"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-wrench" viewBox="0 0 48 48"><path d="M30.5 7.5a9.5 9.5 0 0 0-9 12.4L7.8 33.6a3.6 3.6 0 0 0 5.1 5.1L26.6 25a9.5 9.5 0 0 0 12.4-9l-5.6 5.6-5.3-1.1-1.1-5.3L32.6 8.8a9.5 9.5 0 0 0-2.1-1.3z"/><circle cx="10.5" cy="36" r=".8"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-home" viewBox="0 0 64 64"><path d="M8 29 32 10l24 19"/><path d="M14 24.5V54h36V24.5"/><path d="M34 26 25.5 39h7.5l-2.5 10.5L39 36h-7.5L34 26z"/><path d="M4 54h56"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-crane" viewBox="0 0 64 64"><path d="M16 56V14M22 56V14"/><path d="m16 20 6 5-6 5 6 5-6 5 6 5-6 5 6 5"/><path d="M19 6 16 14h6z"/><path d="M6 14h52M22 19h36"/><path d="m22 14 5 5 5-5 5 5 5-5 5 5 5-5 5 5"/><path d="M19 6 6 14M19 6l39 8"/><path d="M6 14v6h7v-6"/><path d="M48 19v14"/><path d="M44 33h8v6h-8z"/><path d="M8 56h24M40 56h16"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-factory" viewBox="0 0 64 64"><path d="M6 56V30l12 8v-8l12 8v-8l12 8V12h9v44"/><path d="M42 12h9"/><path d="M4 56h56"/><path d="M13 47h6M24 47h6M35 47h6"/><path d="M46.5 20v6M46.5 32v6"/></symbol>
+      <symbol fill="none" stroke-linecap="round" stroke-linejoin="round" id="i-mobile" viewBox="0 0 64 64"><rect x="14" y="16" width="36" height="26" rx="3"/><path d="M20 24h12M20 30h8"/><rect x="38" y="22" width="7" height="7" rx="1"/><path d="M50 22h6V12"/><circle cx="22" cy="48.5" r="5"/><circle cx="43" cy="48.5" r="5"/><path d="M4 28h6M2 34h8M6 40h5"/></symbol>
+    </defs>
+  </svg>
+
+  <div id="loader" role="status" aria-live="polite">
+    <div class="loader__inner">
+      <div class="loader__marks">
+        <svg class="loader__mark loader__mark--base" viewBox="0 0 650 247" aria-hidden="true"><use href="#hat-mark"/></svg>
+        <svg class="loader__mark loader__mark--fill" viewBox="0 0 650 247" aria-hidden="true"><use href="#hat-mark"/></svg>
+      </div>
+      <div class="loader__bar" aria-hidden="true"><span class="loader__fill"></span></div>
+      <div class="loader__meta">
+        <span class="loader__label"><i class="loader__led" aria-hidden="true"></i>Vorglühen</span>
+        <span class="loader__pct" aria-hidden="true">000</span>
+      </div>
+      <span class="sr-only">Seite wird geladen</span>
+    </div>
+    <span class="loader__edge" aria-hidden="true"></span>
+  </div>
+
+  <div id="fallback" aria-hidden="true">
+    <img src="./img/poster.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+  </div>
+
+  <div id="callouts" aria-hidden="true">
+    <div class="callout" data-anchor="display" data-scene="anschluesse" data-step="0">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">01</span><b>Anzeige</b><small>Spannung · Strom · Leistung</small></span>
+    </div>
+    <div class="callout" data-anchor="cee" data-scene="anschluesse" data-step="1">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">02</span><b>CEE 32&nbsp;A</b><small>400&nbsp;V · Drehstrom</small></span>
+    </div>
+    <div class="callout" data-anchor="schuko1" data-scene="anschluesse" data-step="2">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">03</span><b>230&nbsp;V</b><small>2&nbsp;× Schutzkontakt</small></span>
+    </div>
+    <div class="callout" data-anchor="keySwitch" data-scene="anschluesse" data-step="3">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">04</span><b>Start</b><small>Schlüssel · Vorglühen</small></span>
+    </div>
+    <div class="callout" data-anchor="engine" data-scene="innen" data-step="1">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">01</span><b>Motor</b><small>498&nbsp;<span class="u">cm³</span> · luftgekühlt</small></span>
+    </div>
+    <div class="callout" data-anchor="alternator" data-scene="innen" data-step="2">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">02</span><b>Generator</b><small>mit AVR-Regelung</small></span>
+    </div>
+    <div class="callout" data-anchor="tank" data-scene="innen" data-step="3">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">03</span><b>Tank</b><small>15&nbsp;Liter</small></span>
+    </div>
+    <div class="callout" data-anchor="battery" data-scene="innen" data-step="4">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">04</span><b>Batterie</b><small>12&nbsp;V · 30&nbsp;<span class="u">Ah</span></small></span>
+    </div>
+    <div class="callout" data-anchor="muffler" data-scene="innen" data-step="5">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">05</span><b>Schalldämpfer</b><small>im Gehäuse integriert</small></span>
+    </div>
+    <div class="callout" data-anchor="insulation" data-scene="innen" data-step="6">
+      <span class="callout__dot"></span><span class="callout__line"></span>
+      <span class="callout__label"><span class="callout__idx">06</span><b>Dämmung</b><small>Silent-Gehäuse</small></span>
+    </div>
+  </div>
+
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
+
+  <header id="header" class="header">
+    <div class="header__inner">
+      <a class="header__logo" href="#top" aria-label="Heinze Automatisierungstechnik, zum Seitenanfang">
+        <img src="./img/logo-hat-light.svg" alt="Heinze Automatisierungstechnik" width="220" height="22">
+      </a>
+      <nav class="header__nav" aria-label="Hauptnavigation">
+        <ul>
+          <li><a class="nav-link" href="#anschluesse" data-nav="anschluesse">Anschlüsse</a></li>
+          <li><a class="nav-link" href="#innen" data-nav="innen">Technik</a></li>
+          <li><a class="nav-link" href="#modelle" data-nav="modelle">Modelle</a></li>
+          <li><a class="nav-link" href="#daten" data-nav="daten">Daten</a></li>
+          <li><a class="nav-link" href="#service" data-nav="service">Service</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a class="btn btn--primary btn--sm header__cta" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-magnetic>
+          <span class="btn__label">Jetzt bestellen</span>
+        <span class="sr-only"> (öffnet in neuem Tab)</span></a>
+        <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen">
+          <span class="burger__line"></span><span class="burger__line"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu" id="menu" role="dialog" aria-label="Menü" data-lenis-prevent hidden>
+    <div class="menu__bg" aria-hidden="true"></div>
+    <nav class="menu__nav" aria-label="Seitenabschnitte">
+      <ol>
+        <li><a href="#anschluesse"><span class="menu__idx">01</span><span class="menu__txt">Anschlüsse</span></a></li>
+        <li><a href="#innen"><span class="menu__idx">02</span><span class="menu__txt">Technik</span></a></li>
+        <li><a href="#modelle"><span class="menu__idx">03</span><span class="menu__txt">Modelle</span></a></li>
+        <li><a href="#daten"><span class="menu__idx">04</span><span class="menu__txt">Daten</span></a></li>
+        <li><a href="#service"><span class="menu__idx">05</span><span class="menu__txt">Service</span></a></li>
+        <li><a href="#kontakt"><span class="menu__idx">06</span><span class="menu__txt">Kontakt</span></a></li>
+      </ol>
+    </nav>
+    <div class="menu__foot">
+      <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop>
+        <span class="btn__label">Jetzt bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
+      <span class="sr-only"> (öffnet in neuem Tab)</span></a>
+      <div class="menu__contact">
+        <a href="tel:+497176452100">07176 / 452100</a>
+        <a href="mailto:info@heinze-at.de">info@heinze-at.de</a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidenav" aria-hidden="true">
+    <ol>
+      <li><a href="#hero" tabindex="-1" data-side="hero"><span class="sidenav__label">Start</span><i></i></a></li>
+      <li><a href="#statement" tabindex="-1" data-side="statement"><span class="sidenav__label">Warum</span><i></i></a></li>
+      <li><a href="#anschluesse" tabindex="-1" data-side="anschluesse"><span class="sidenav__label">Anschlüsse</span><i></i></a></li>
+      <li><a href="#innen" tabindex="-1" data-side="innen"><span class="sidenav__label">Technik</span><i></i></a></li>
+      <li><a href="#avr" tabindex="-1" data-side="avr"><span class="sidenav__label">AVR</span><i></i></a></li>
+      <li><a href="#konstruktion" tabindex="-1" data-side="konstruktion"><span class="sidenav__label">Konstruktion</span><i></i></a></li>
+      <li><a href="#modelle" tabindex="-1" data-side="modelle"><span class="sidenav__label">Modelle</span><i></i></a></li>
+      <li><a href="#einsatz" tabindex="-1" data-side="einsatz"><span class="sidenav__label">Einsatz</span><i></i></a></li>
+      <li><a href="#daten" tabindex="-1" data-side="daten"><span class="sidenav__label">Daten</span><i></i></a></li>
+      <li><a href="#service" tabindex="-1" data-side="service"><span class="sidenav__label">Service</span><i></i></a></li>
+      <li><a href="#kontakt" tabindex="-1" data-side="kontakt"><span class="sidenav__label">Kontakt</span><i></i></a></li>
+    </ol>
+  </nav>
+
+  <main id="main" tabindex="-1">
+    <span id="top" class="anchor-top" aria-hidden="true"></span>
+
+    <!-- 1 · HERO -->
+    <section id="hero" class="scene hero" data-scene="hero" aria-labelledby="hero-title">
+      <div class="hero__scrim" aria-hidden="true"></div>
+      <div class="wrap hero__wrap">
+        <div class="hero__content">
+          <p class="eyebrow hero__eyebrow" data-intro><span><span class="hatgen">HATGEN</span> Silent · <span class="nw">Diesel-Notstromaggregat</span></span></p>
+          <h1 class="hero__title" id="hero-title">
+            <span class="sr-only">Unabhängig. Auf Knopfdruck.</span>
+            <span class="hero__line" aria-hidden="true">Unabhängig.</span>
+            <span class="hero__line hero__line--grad" aria-hidden="true"><span class="grad">Auf Knopfdruck.</span></span>
+          </h1>
+          <p class="lead hero__lead" data-intro>Schallgedämmter Dieselgenerator mit 5,5&nbsp;oder 6,5&nbsp;kW. 230&nbsp;V und 400&nbsp;V gleichzeitig, AVR-geregelt, mit Elektrostart. Beraten und betreut vom Sondermaschinenbauer aus Ruppertshofen.</p>
+          <div class="btn-row hero__actions" data-intro>
+            <a class="btn btn--primary" href="#modelle" data-magnetic>
+              <span class="btn__label">Modelle ansehen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-arrow"/></svg>
+            </a>
+            <a class="btn btn--ghost" href="#kontakt" data-magnetic>
+              <span class="btn__label">Beratung vor Ort</span>
+            </a>
+          </div>
+          <ul class="facts hero__facts" role="list">
+            <li class="fact" data-intro-fact>
+              <span class="fact__val"><span class="sr-only">bis 6,5&nbsp;kW</span><span aria-hidden="true"><span class="fact__pre">bis</span> <span data-count="6.5" data-dec="1">6,5</span><span class="fact__unit">&nbsp;kW</span></span></span>
+              <span class="fact__label">Spitzenleistung</span>
+            </li>
+            <li class="fact" data-intro-fact>
+              <span class="fact__val">230<span class="fact__plus">&#8201;+&#8201;</span>400<span class="fact__unit">&nbsp;V</span></span>
+              <span class="fact__label">gleichzeitig nutzbar</span>
+            </li>
+            <li class="fact" data-intro-fact>
+              <span class="fact__val"><span class="sr-only">15&nbsp;Liter</span><span aria-hidden="true"><span data-count="15">15</span><span class="fact__unit">&nbsp;l</span></span></span>
+              <span class="fact__label">Tankinhalt</span>
+            </li>
+            <li class="fact" data-intro-fact>
+              <span class="fact__val">12<span class="fact__unit">&nbsp;V</span></span>
+              <span class="fact__label">Elektrostart</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <a class="scroll-hint" href="#statement" data-intro aria-label="Weiter scrollen">
+        <span class="scroll-hint__label">Scrollen</span>
+        <span class="scroll-hint__line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- 2 · STATEMENT -->
+    <section id="statement" class="scene scene--pinned statement" data-scene="statement" style="--len: 220vh" aria-labelledby="statement-title">
+      <div class="scene__sticky">
+        <div class="wrap scene__wrap">
+          <div class="scene__panel statement__panel">
+            <h2 class="eyebrow" id="statement-title" data-reveal="fade">Warum <span class="hatgen">HATGEN</span></h2>
+            <p class="statement__text">Stromausfall auf der Baustelle, im Betrieb oder zu Hause? Der <span class="hatgen">HATGEN</span> startet per Schlüssel, glüht selbst vor und liefert <span class="hl">sauberen Drehstrom</span>, solange der Tank reicht.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · ANSCHLÜSSE -->
+    <section id="anschluesse" class="scene scene--pinned steps-scene" data-scene="anschluesse" data-step="0" style="--len: 420vh" aria-labelledby="anschluesse-title">
+      <div class="scene__sticky">
+        <div class="wrap scene__wrap">
+          <div class="scene__panel">
+            <p class="eyebrow" data-reveal="fade">Anschlüsse &amp; Bedienung</p>
+            <h2 class="h2" id="anschluesse-title" data-reveal="lines">230&nbsp;V und 400&nbsp;V.<br> Gleichzeitig.</h2>
+            <p class="sub" data-reveal="fade">Alle Anschlüsse lassen sich parallel nutzen. Ohne Umschalten.</p>
+            <div class="stepbar" aria-hidden="true" data-reveal="fade">
+              <span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span>
+              <span class="stepbar__count"><b>01</b> / 04</span>
+            </div>
+            <ol class="steps" data-reveal="fade">
+              <li class="step is-active" data-step="0" data-anchor="display">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">01</span><span class="step__title">Multifunktionsanzeige</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Spannung, Strom, Leistung und Laufzeit auf einen Blick. Digital und gut ablesbar.</p></div></div>
+              </li>
+              <li class="step" data-step="1" data-anchor="cee">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">02</span><span class="step__title">CEE 32&nbsp;A · 400&nbsp;V</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Drehstrom für Maschinen, Kompressoren und Baustellengeräte. Dreiphasig kurzzeitig bis zu 25&nbsp;% überlastbar.</p></div></div>
+              </li>
+              <li class="step" data-step="2" data-anchor="schuko1">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">03</span><span class="step__title">2&nbsp;×&nbsp;230&nbsp;V · 1&nbsp;×&nbsp;12&nbsp;V</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Zwei Schutzkontakt-Steckdosen für Werkzeuge, Licht und Elektronik. Dazu ein 12‑V‑Ausgang mit 8,3&nbsp;A.</p></div></div>
+              </li>
+              <li class="step" data-step="3" data-anchor="keySwitch">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">04</span><span class="step__title">Schlüsselstart mit Vorglühen</span></button></h3>
+                <div class="step__body"><div class="step__inner">
+                  <p>Elektrostart über die mitgelieferte 12‑V‑Batterie mit 30&nbsp;Ah. Die integrierte Glühkerze heizt vor, der Sicherungsautomat schützt vor Überlast.</p>
+                  <button class="btn-start" type="button">
+                    <span class="btn-start__led" aria-hidden="true"></span>
+                    <span class="btn-start__label">Probestart <span aria-hidden="true">▸</span></span>
+                    <span class="btn-start__state" aria-live="polite"></span>
+                  </button>
+                </div></div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · INNEN -->
+    <section id="innen" class="scene scene--pinned steps-scene" data-scene="innen" data-step="0" style="--len: 560vh" aria-labelledby="innen-title">
+      <div class="scene__sticky">
+        <div class="wrap scene__wrap">
+          <div class="scene__panel">
+            <p class="eyebrow" data-reveal="fade">Technik im Detail</p>
+            <h2 class="h2" id="innen-title" data-reveal="lines">Blick ins Innere.</h2>
+            <p class="sub" data-reveal="fade">Robuste Technik, sauber verbaut und über die große Wartungstür schnell erreichbar.</p>
+            <div class="stepbar" aria-hidden="true" data-reveal="fade">
+              <span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span><span class="stepbar__seg"><i></i></span>
+              <span class="stepbar__count"><b>00</b> / 06</span>
+            </div>
+            <ol class="steps steps--compact" data-reveal="fade">
+              <li class="step is-active step--intro" data-step="0" data-anchor="lid">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">00</span><span class="step__title">Gehäuse öffnen</span></button></h3>
+                <div class="step__body"><div class="step__inner"></div></div>
+              </li>
+              <li class="step" data-step="1" data-anchor="engine">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">01</span><span class="step__title">4-Takt-Diesel · 498&nbsp;cm³</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Luftgekühlter Einzylinder mit Ölmangelsicherung: robust, wartungsfreundlich und ohne Kühlflüssigkeit.</p></div></div>
+              </li>
+              <li class="step" data-step="2" data-anchor="alternator">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">02</span><span class="step__title">Generator mit AVR</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Die automatische Spannungsregelung hält die Spannung konstant, auch bei starker Schieflast.</p></div></div>
+              </li>
+              <li class="step" data-step="3" data-anchor="tank">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">03</span><span class="step__title">15-Liter-Tank</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Mit mechanischer Füllstandsanzeige. Der Einfüllstutzen sitzt gut erreichbar oben auf dem Gehäuse.</p></div></div>
+              </li>
+              <li class="step" data-step="4" data-anchor="battery">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">04</span><span class="step__title">Elektrostart 12&nbsp;V · 30&nbsp;Ah</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Batterie im Lieferumfang. Gestartet wird bequem per Schlüsselschalter.</p></div></div>
+              </li>
+              <li class="step" data-step="5" data-anchor="muffler">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">05</span><span class="step__title">Schalldämpfer</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Integrierter Schalldämpfer, vollständig im schallgedämmten Gehäuse verbaut.</p></div></div>
+              </li>
+              <li class="step" data-step="6" data-anchor="insulation">
+                <h3 class="step__h"><button class="step__head" type="button"><span class="step__idx">06</span><span class="step__title">Silent-Gehäuse</span></button></h3>
+                <div class="step__body"><div class="step__inner"><p>Die Schalldämmung im geschlossenen Gehäuse macht das Aggregat deutlich leiser als offene Diesel-Aggregate. Schallleistungspegel 97&nbsp;dB&nbsp;(LWA).</p></div></div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · AVR -->
+    <section id="avr" class="scene scene--pinned avr" data-scene="avr" style="--len: 240vh" aria-labelledby="avr-title">
+      <div class="scene__sticky">
+        <div class="wrap scene__wrap">
+          <div class="scene__panel avr__panel">
+            <p class="eyebrow" data-reveal="fade">AVR-Spannungsregelung</p>
+            <h2 class="h2" id="avr-title" data-reveal="lines">Saubere Spannung für sensible Elektronik.</h2>
+            <p class="sub" data-reveal="fade">Die <span lang="en">Automatic Voltage Regulation</span> glättet Spannungsspitzen und hält die Spannung stabil. So laufen Fernseher, Computer und Heizungssteuerungen sicher am Aggregat.</p>
+            <figure class="scope" data-reveal="fade" aria-label="Oszilloskop: ungeregelte Spannung wird durch die AVR zu einer sauberen Sinuskurve">
+              <div class="scope__screen">
+                <div class="scope__bar" aria-hidden="true">
+                  <span class="scope__tags">
+                    <span class="scope__tag scope__tag--raw">Ungeregelt</span>
+                    <span class="scope__tag scope__tag--avr">Mit AVR</span>
+                  </span>
+                  <span class="scope__meta">CH1 · 200&nbsp;V/<span class="u">div</span> · 5&nbsp;<span class="u">ms/div</span></span>
+                  <span class="scope__read"><b class="scope__volt">230,0</b>&nbsp;V</span>
+                </div>
+                <div class="scope__plot">
+                  <svg class="scope__svg" viewBox="0 0 560 190" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                    <defs>
+                      <filter id="scope-glow" x="-10%" y="-40%" width="120%" height="180%">
+                        <feGaussianBlur stdDeviation="3.2" result="b"/>
+                        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                      <linearGradient id="scope-fade" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0" stop-color="#ff3333" stop-opacity=".35"/>
+                        <stop offset=".18" stop-color="#ff3333" stop-opacity="1"/>
+                        <stop offset=".82" stop-color="#ff3333" stop-opacity="1"/>
+                        <stop offset="1" stop-color="#ff3333" stop-opacity="1"/>
+                      </linearGradient>
+                    </defs>
+                    <g class="scope__grid"></g>
+                    <path class="scope__ghost" d="M0 95 L548 95"/>
+                    <path class="scope__trace" d="M0 95 L548 95" filter="url(#scope-glow)"/>
+                    <circle class="scope__cursor" cx="548" cy="95" r="3.5"/>
+                  </svg>
+                </div>
+              </div>
+              <figcaption class="chips">
+                <span class="chip chip--accent">230&nbsp;V · 50&nbsp;<span class="u">Hz</span></span>
+                <span class="chip">Fernseher</span>
+                <span class="chip">Computer</span>
+                <span class="chip">Heizungssteuerung</span>
+                <span class="chip">Werkzeuge</span>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · KONSTRUKTION -->
+    <section id="konstruktion" class="scene scene--pinned konstruktion" data-scene="konstruktion" style="--len: 300vh" aria-labelledby="konstruktion-title">
+      <div class="scene__sticky">
+        <div class="bp" aria-hidden="true">
+          <div class="bp__grid"></div>
+          <span class="bp__corner bp__corner--tl"></span><span class="bp__corner bp__corner--tr"></span>
+          <span class="bp__corner bp__corner--bl"></span><span class="bp__corner bp__corner--br"></span>
+          <span class="bp__coord bp__coord--tr">Ansicht ISO · <span data-model-name>S5500-5DS</span></span>
+          <span class="bp__coord bp__coord--rl">X 950,0 · Y 800,0 · Z 550,0</span>
+          <div class="bp__block">
+            <div class="bp__cell bp__cell--wide"><small>Projekt</small><b><span class="hatgen">HATGEN</span> <span data-model-name>S5500-5DS</span></b></div>
+            <div class="bp__cell"><small>Maßstab</small><b>1 : 10</b></div>
+            <div class="bp__cell"><small>Blatt</small><b>01 / 01</b></div>
+            <div class="bp__cell"><small>Einheit</small><b class="u">mm</b></div>
+            <div class="bp__cell"><small>Rev.</small><b>B</b></div>
+            <div class="bp__cell bp__cell--wide"><small>Vertrieb &amp; Service</small><b>Heinze Automatisierungstechnik</b></div>
+          </div>
+        </div>
+        <div class="wrap scene__wrap">
+          <div class="scene__panel konstruktion__panel">
+            <div class="phase phase--a">
+              <p class="eyebrow" data-reveal="fade">Heinze Automatisierungstechnik</p>
+              <h2 class="h2" id="konstruktion-title" data-reveal="lines">Vom Sondermaschinenbauer.<br class="br-wide"> Nicht nur vom Händler.</h2>
+              <p class="sub" data-reveal="fade">Wir konstruieren, bauen und programmieren seit Jahren Maschinen und Anlagen für die Industrie. Dieses Know‑how bekommen Sie auch bei Beratung, Ersatzteilen und im Servicefall.</p>
+            </div>
+            <div class="phase phase--b">
+              <dl class="stats" data-reveal="stagger">
+                <div class="stat stat--wide">
+                  <dt>Abmessungen L&nbsp;×&nbsp;B&nbsp;×&nbsp;H</dt>
+                  <dd><span class="sr-only">950 × 550 × 800&nbsp;mm</span><span aria-hidden="true"><span data-count="950">950</span><span class="stat__x">×</span><span data-count="550">550</span><span class="stat__x">×</span><span data-count="800">800</span><span class="stat__unit">&nbsp;mm</span></span></dd>
+                </div>
+                <div class="stat">
+                  <dt>Nettogewicht</dt>
+                  <dd><span class="sr-only">160&nbsp;kg</span><span aria-hidden="true"><span data-count="160">160</span><span class="stat__unit">&nbsp;kg</span></span></dd>
+                </div>
+                <div class="stat">
+                  <dt>Schallleistung LWA</dt>
+                  <dd><span class="sr-only">97&nbsp;dB</span><span aria-hidden="true"><span data-count="97">97</span><span class="stat__unit">&nbsp;dB</span></span></dd>
+                </div>
+                <div class="stat">
+                  <dt>Hubraum</dt>
+                  <dd><span class="sr-only">498&nbsp;cm³</span><span aria-hidden="true"><span data-count="498">498</span><span class="stat__unit">&nbsp;cm³</span></span></dd>
+                </div>
+              </dl>
+              <ul class="checks" role="list" data-reveal="stagger">
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Umfassendes Ersatzteillager</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Schnelle Hilfe im Servicefall</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Persönliche Beratung vor Ort</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · MODELLE -->
+    <section id="modelle" class="scene modelle" data-scene="modelle" aria-labelledby="modelle-title">
+      <div class="wrap modelle__wrap">
+        <div class="modelle__panel">
+          <p class="eyebrow" data-reveal="fade">Wählen Sie Ihre Leistungsklasse</p>
+          <h2 class="h2" id="modelle-title" data-reveal="lines">Zwei Modelle. Ein Gehäuse.</h2>
+          <p class="sub" data-reveal="fade">Identische Abmessungen und Ausstattung. Der Unterschied liegt in der Leistung.</p>
+
+          <div class="model-toggle" role="radiogroup" aria-label="Modell wählen" data-reveal="fade">
+            <span class="model-toggle__thumb" aria-hidden="true"></span>
+            <button class="model-toggle__opt" type="button" role="radio" aria-checked="true" tabindex="0" data-model="s5500">
+              <span class="model-toggle__name">S5500-5DS</span><span class="model-toggle__kw">5,5&nbsp;kW</span>
+            </button>
+            <button class="model-toggle__opt" type="button" role="radio" aria-checked="false" tabindex="-1" data-model="s6500">
+              <span class="model-toggle__name">S6500-5DS</span><span class="model-toggle__kw">6,5&nbsp;kW</span>
+            </button>
+          </div>
+
+          <p class="sr-only" id="model-status" aria-live="polite"></p>
+          <div class="config glass" data-reveal="fade">
+            <div class="config__row">
+              <div class="config__head">
+                <span class="config__phase">400&nbsp;V · 3-phasig</span>
+                <span class="config__vals"><span class="config__cont"><b data-val="threePhase.cont">5.000</b>&nbsp;W <small>Dauer</small></span><span class="config__max">max. <b data-val="threePhase.max">5.500</b>&nbsp;W</span></span>
+              </div>
+              <div class="bar" data-bar="threePhase" style="--cont: .714; --max: .786" aria-hidden="true"><span class="bar__max"></span><span class="bar__cont"></span></div>
+            </div>
+            <div class="config__row">
+              <div class="config__head">
+                <span class="config__phase">230&nbsp;V · 1-phasig</span>
+                <span class="config__vals"><span class="config__cont"><b data-val="singlePhase.cont">3.300</b>&nbsp;W <small>Dauer</small></span><span class="config__max">max. <b data-val="singlePhase.max">3.600</b>&nbsp;W</span></span>
+              </div>
+              <div class="bar" data-bar="singlePhase" style="--cont: .471; --max: .514" aria-hidden="true"><span class="bar__max"></span><span class="bar__cont"></span></div>
+            </div>
+            <div class="bar-scale" aria-hidden="true"><span style="--i:0">0</span><span style="--i:1">1</span><span style="--i:2">2</span><span style="--i:3">3</span><span style="--i:4">4</span><span style="--i:5">5</span><span style="--i:6">6</span><span style="--i:7">7</span><em>kW</em></div>
+            <div class="config__price">
+              <span class="price"><b data-val="price">1.039,00&nbsp;€</b></span>
+              <span class="price__note">inkl. MwSt., zzgl. Versandkosten</span>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-magnetic>
+                <span class="btn__label">Jetzt im Shop bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
+              <span class="sr-only"> (öffnet in neuem Tab)</span></a>
+              <a class="btn btn--ghost" href="tel:+497176452100" data-magnetic>
+                <svg class="btn__icon btn__icon--lead" aria-hidden="true"><use href="#i-phone"/></svg><span class="btn__label">Anrufen: 07176 / 452100</span>
+              </a>
+            </div>
+            <p class="config__note">Versand 118,00&nbsp;€ · Lieferzeit ca. 2&nbsp;Werktage · Abholung in Ruppertshofen kostenlos</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · EINSATZ -->
+    <section id="einsatz" class="solid einsatz" data-scene="einsatz" aria-labelledby="einsatz-title">
+      <div class="einsatz__sticky">
+        <div class="einsatz__rail">
+          <div class="wrap einsatz__head">
+            <p class="eyebrow" data-reveal="fade">Einsatzbereiche</p>
+            <h2 class="h2" id="einsatz-title" data-reveal="lines">Gebaut für den Ernstfall.<br> Und für den Alltag.</h2>
+            <p class="sub einsatz__sub" data-reveal="fade">Ein Aggregat für Haus, Baustelle und Betrieb, mit derselben sauberen Spannung an jedem Einsatzort.</p>
+            <div class="einsatz__meter" aria-hidden="true" data-reveal="fade">
+              <span class="einsatz__count"><b>01</b> / 04</span>
+              <span class="einsatz__progress"><i></i></span>
+              <span class="einsatz__hint">Scrollen<svg><use href="#i-arrow"/></svg></span>
+            </div>
+          </div>
+          <ol class="einsatz__track" role="list">
+            <li class="card">
+              <div class="card__glare" aria-hidden="true"></div>
+              <span class="card__num" aria-hidden="true">01</span>
+              <svg class="card__icon" aria-hidden="true"><use href="#i-home"/></svg>
+              <p class="card__tags"><span>230&nbsp;V</span><span>AVR-geregelt</span></p>
+              <h3 class="card__title">Zuhause</h3>
+              <p class="card__text">Notstrom für Heizung, Kühlgeräte und Beleuchtung. Die AVR-Regelung schützt empfindliche Elektronik.</p>
+            </li>
+            <li class="card">
+              <div class="card__glare" aria-hidden="true"></div>
+              <span class="card__num" aria-hidden="true">02</span>
+              <svg class="card__icon" aria-hidden="true"><use href="#i-crane"/></svg>
+              <p class="card__tags"><span>400&nbsp;V</span><span>CEE 32&nbsp;A</span></p>
+              <h3 class="card__title">Baustelle</h3>
+              <p class="card__text">400&nbsp;V über CEE 32&nbsp;A für Maschinen und Werkzeuge. Robust geschützt im geschlossenen Gehäuse.</p>
+            </li>
+            <li class="card">
+              <div class="card__glare" aria-hidden="true"></div>
+              <span class="card__num" aria-hidden="true">03</span>
+              <svg class="card__icon" aria-hidden="true"><use href="#i-factory"/></svg>
+              <p class="card__tags"><span>230&nbsp;+&nbsp;400&nbsp;V</span><span>Notstrom</span></p>
+              <h3 class="card__title">Gewerbe</h3>
+              <p class="card__text">Überbrückt Netzausfälle im Betrieb und versorgt Geräte dort, wo kein Netz verfügbar ist.</p>
+            </li>
+            <li class="card">
+              <div class="card__glare" aria-hidden="true"></div>
+              <span class="card__num" aria-hidden="true">04</span>
+              <svg class="card__icon" aria-hidden="true"><use href="#i-mobile"/></svg>
+              <p class="card__tags"><span>160&nbsp;kg</span><span>Transporträder</span></p>
+              <h3 class="card__title">Mobil</h3>
+              <p class="card__text">Transporträder, einseitig mit Lenk- und Bremsfunktion, bringen 160&nbsp;kg dorthin, wo Strom gebraucht wird.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <div class="marquee__group">
+          <span class="mq">230&nbsp;V</span><span class="mq-dot">·</span>
+          <span class="mq mq--o">400&nbsp;V</span><span class="mq-dot">·</span>
+          <span class="mq">50&nbsp;<span class="u">Hz</span></span><span class="mq-dot">·</span>
+          <span class="mq mq--o">AVR</span><span class="mq-dot">·</span>
+          <span class="mq">Elektrostart</span><span class="mq-dot">·</span>
+          <span class="mq mq--o">Silent</span><span class="mq-dot">·</span>
+          <span class="mq">15-Liter-Tank</span><span class="mq-dot">·</span>
+          <span class="mq mq--o">498&nbsp;<span class="u">cm³</span></span><span class="mq-dot">·</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 · DATEN -->
+    <section id="daten" class="solid daten" data-scene="daten" aria-labelledby="daten-title">
+      <div class="wrap">
+        <div class="daten__head">
+          <div>
+            <p class="eyebrow" data-reveal="fade">Datenblatt</p>
+            <h2 class="h2" id="daten-title" data-reveal="lines">Technische Daten</h2>
+          </div>
+          <div class="model-toggle model-toggle--sm" role="radiogroup" aria-label="Modell für das Datenblatt wählen" data-reveal="fade">
+            <span class="model-toggle__thumb" aria-hidden="true"></span>
+            <button class="model-toggle__opt" type="button" role="radio" aria-checked="true" tabindex="0" data-model="s5500">
+              <span class="model-toggle__name">S5500-5DS</span><span class="model-toggle__kw">5,5&nbsp;kW</span>
+            </button>
+            <button class="model-toggle__opt" type="button" role="radio" aria-checked="false" tabindex="-1" data-model="s6500">
+              <span class="model-toggle__name">S6500-5DS</span><span class="model-toggle__kw">6,5&nbsp;kW</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="specs">
+          <div class="spec-group" data-reveal="fade">
+            <h3 class="spec-group__title"><span>01</span>Leistung</h3>
+            <dl>
+              <div><dt>400&nbsp;V · 3-phasig</dt><dd data-spec="threePhase">5.000&nbsp;W Dauer · max. 5.500&nbsp;W</dd></div>
+              <div><dt>230&nbsp;V · 1-phasig</dt><dd data-spec="singlePhase">3.300&nbsp;W Dauer · max. 3.600&nbsp;W</dd></div>
+              <div><dt>Frequenz</dt><dd>50&nbsp;Hz</dd></div>
+              <div><dt>Überlast</dt><dd>kurzzeitig bis 25&nbsp;% (3-phasig)</dd></div>
+              <div><dt>Spannungsregelung</dt><dd>AVR (<span lang="en">Automatic Voltage Regulation</span>)</dd></div>
+            </dl>
+          </div>
+          <div class="spec-group" data-reveal="fade">
+            <h3 class="spec-group__title"><span>02</span>Anschlüsse &amp; Bedienung</h3>
+            <dl>
+              <div><dt>Drehstrom</dt><dd>1&nbsp;× CEE 32&nbsp;A / 400&nbsp;V (50&nbsp;Hz)</dd></div>
+              <div><dt>Wechselstrom</dt><dd>2&nbsp;× 230&nbsp;V (50&nbsp;Hz)</dd></div>
+              <div><dt>Gleichstrom</dt><dd>1&nbsp;× 12&nbsp;V (8,3&nbsp;A)</dd></div>
+              <div><dt>Anzeige</dt><dd>Digital: Spannung, Strom, Leistung, Laufzeit</dd></div>
+              <div><dt>Start</dt><dd>Elektrostart mit Schlüssel, Glühkerze</dd></div>
+            </dl>
+          </div>
+          <div class="spec-group" data-reveal="fade">
+            <h3 class="spec-group__title"><span>03</span>Motor</h3>
+            <dl>
+              <div><dt>Typ</dt><dd>4-Takt-Diesel, luftgekühlt</dd></div>
+              <div><dt>Zylinder</dt><dd>1</dd></div>
+              <div><dt>Hubraum</dt><dd>498&nbsp;cm³</dd></div>
+              <div><dt>Tank</dt><dd>15&nbsp;Liter mit mechanischer Füllstandsanzeige</dd></div>
+              <div><dt>Schutz</dt><dd>Überlastschutz, Ölmangelsicherung</dd></div>
+            </dl>
+          </div>
+          <div class="spec-group" data-reveal="fade">
+            <h3 class="spec-group__title"><span>04</span>Maße &amp; Gewicht</h3>
+            <dl>
+              <div><dt>L&nbsp;×&nbsp;B&nbsp;×&nbsp;H</dt><dd>950&nbsp;×&nbsp;550&nbsp;×&nbsp;800&nbsp;mm</dd></div>
+              <div><dt>Gewicht</dt><dd>160&nbsp;kg netto · 175&nbsp;kg brutto</dd></div>
+              <div><dt>Schallleistung</dt><dd>97&nbsp;dB (LWA)</dd></div>
+              <div><dt>Mobilität</dt><dd>Transporträder, einseitig lenk- und bremsbar</dd></div>
+              <div><dt>Batterie</dt><dd>12&nbsp;V / 30&nbsp;Ah, im Lieferumfang</dd></div>
+            </dl>
+          </div>
+          <div class="spec-group spec-group--wide" data-reveal="fade">
+            <h3 class="spec-group__title"><span>05</span>Lieferung</h3>
+            <dl>
+              <div><dt>Lieferumfang</dt><dd>Aggregat mit 12‑V‑Starterbatterie (30&nbsp;Ah)</dd></div>
+              <div><dt>Gewährleistung</dt><dd>gesetzlich, 2&nbsp;Jahre</dd></div>
+              <div><dt>Versand</dt><dd>118,00&nbsp;€ · Lieferzeit ca. 2&nbsp;Werktage</dd></div>
+              <div><dt>Abholung</dt><dd>Kostenlos ab Lager 73577&nbsp;Ruppertshofen</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · SERVICE -->
+    <section id="service" class="solid service" data-scene="service" aria-labelledby="service-title">
+      <div class="wrap">
+        <div class="service__head">
+          <p class="eyebrow" data-reveal="fade">Praxistest</p>
+          <h2 class="h2" id="service-title" data-reveal="lines">Vor Ort erleben. Unter Last.</h2>
+          <p class="sub" data-reveal="fade">Kommen Sie nach Ruppertshofen: Wir führen Ihnen die Geräte direkt im Betrieb unter Belastung vor und beraten Sie persönlich.</p>
+        </div>
+        <div class="service__grid">
+          <div class="video" data-reveal="fade">
+            <button class="video__facade" type="button" aria-label="Praxistest ansehen, Video lädt von YouTube">
+              <img class="video__poster" src="./img/video-poster.jpg" alt="HATGEN S5500-5DS im Praxistest bei Heinze Automatisierungstechnik" loading="lazy" decoding="async" width="1280" height="720">
+              <span class="video__shade" aria-hidden="true"></span>
+              <span class="video__play" aria-hidden="true"><svg><use href="#i-play"/></svg></span>
+              <span class="video__label">Praxistest ansehen</span>
+            </button>
+            <p class="video__consent"><svg aria-hidden="true"><use href="#i-shield"/></svg>Beim Abspielen wird eine Verbindung zu YouTube (Google) hergestellt. <a href="https://heinze-at.de/de/privacy" target="_blank" rel="noopener">Mehr erfahren<span class="sr-only"> (öffnet in neuem Tab)</span></a></p>
+          </div>
+          <ul class="tiles" role="list">
+            <li class="tile" data-reveal="fade">
+              <svg class="tile__icon" aria-hidden="true"><use href="#i-factory"/></svg>
+              <b class="tile__title">Vorführung unter Last</b>
+              <span class="tile__sub">vor Ort in Ruppertshofen</span>
+            </li>
+            <li class="tile" data-reveal="fade">
+              <svg class="tile__icon" aria-hidden="true"><use href="#i-truck"/></svg>
+              <b class="tile__title">Lieferzeit ca. 2&nbsp;Werktage</b>
+              <span class="tile__sub">Versand 118,00&nbsp;€</span>
+            </li>
+            <li class="tile" data-reveal="fade">
+              <svg class="tile__icon" aria-hidden="true"><use href="#i-store"/></svg>
+              <b class="tile__title">Abholung kostenlos</b>
+              <span class="tile__sub">ab Lager Ruppertshofen</span>
+            </li>
+            <li class="tile" data-reveal="fade">
+              <svg class="tile__icon" aria-hidden="true"><use href="#i-wrench"/></svg>
+              <b class="tile__title">Ersatzteile &amp; Service</b>
+              <span class="tile__sub">schnelle Hilfe im Servicefall</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · KONTAKT -->
+    <section id="kontakt" class="scene kontakt" data-scene="kontakt" aria-labelledby="kontakt-title">
+      <div class="kontakt__fade" aria-hidden="true"></div>
+      <div class="wrap kontakt__wrap">
+        <div class="kontakt__content">
+          <p class="eyebrow" data-reveal="fade">Jetzt bestellen oder beraten lassen</p>
+          <h2 class="h2 kontakt__title" id="kontakt-title" data-reveal="lines">Bereit, wenn Sie es sind.</h2>
+          <p class="sub" data-reveal="fade">Bestellen Sie direkt im Shop oder lassen Sie sich persönlich beraten.</p>
+          <div class="btn-row kontakt__actions" data-reveal="fade">
+            <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-magnetic>
+              <span class="btn__label">Jetzt bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
+            <span class="sr-only"> (öffnet in neuem Tab)</span></a>
+            <a class="btn btn--ghost" href="tel:+497176452100" data-magnetic>
+              <svg class="btn__icon btn__icon--lead" aria-hidden="true"><use href="#i-phone"/></svg><span class="btn__label">07176 / 452100</span>
+            </a>
+            <a class="btn btn--ghost" href="mailto:info@heinze-at.de" data-magnetic>
+              <svg class="btn__icon btn__icon--lead" aria-hidden="true"><use href="#i-mail"/></svg><span class="btn__label">info@heinze-at.de</span>
+            </a>
+          </div>
+          <p class="kontakt__address" data-reveal="fade">
+            <svg aria-hidden="true"><use href="#i-pin"/></svg>
+            <span class="kontakt__addr"><span class="nw">Heinze Automatisierungstechnik</span><span class="kontakt__sep" aria-hidden="true"> · </span><span class="nw">Utzstetter Str. 7/2&nbsp;· 73577&nbsp;Ruppertshofen</span></span>
+            <a class="link" href="https://www.google.com/maps/search/?api=1&amp;query=Utzstetter+Str.+7%2F2%2C+73577+Ruppertshofen" target="_blank" rel="noopener">Route planen<svg aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="#top" class="footer__logo" aria-label="Heinze Automatisierungstechnik, zum Seitenanfang"><img src="./img/logo-hat-light.svg" alt="Heinze Automatisierungstechnik" width="300" height="30" loading="lazy"></a>
+          <p>Ihr Partner für Automatisierung. Alles aus einer Hand, von Entwurf bis Inbetriebnahme.</p>
+        </div>
+        <div class="footer__col">
+          <h2 class="footer__h">Kontakt</h2>
+          <ul role="list">
+            <li><span>Telefon</span><a href="tel:+497176452100">07176 / 452100</a></li>
+            <li><span>Fax</span>07176 / 452101</li>
+            <li><span>Mobil</span><a href="tel:+491782099567">0178 / 2099567</a></li>
+            <li><span>E-Mail</span><a href="mailto:info@heinze-at.de">info@heinze-at.de</a></li>
+            <li><span>Adresse</span>Utzstetter Str. 7/2<br>73577&nbsp;Ruppertshofen</li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h2 class="footer__h">Heinze</h2>
+          <ul role="list">
+            <li><a href="https://heinze-at.de/de/services" target="_blank" rel="noopener">Leistungen<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+            <li><a href="https://heinze-at.de/de/services/special-machinery" target="_blank" rel="noopener">Sondermaschinenbau<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+            <li><a href="https://heinze-at.de/de/services/retrofit" target="_blank" rel="noopener">Retrofit<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+            <li><a href="https://heinze-at.de/de/products" target="_blank" rel="noopener">Produkte<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+            <li><a href="https://heinze-at.de/de/about" target="_blank" rel="noopener">Über uns<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+            <li><a href="https://heinze-at.de/de" target="_blank" rel="noopener">heinze-at.de<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h2 class="footer__h">Rechtliches</h2>
+          <ul role="list">
+            <li><a href="https://heinze-at.de/de/imprint" target="_blank" rel="noopener">Impressum<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+            <li><a href="https://heinze-at.de/de/privacy" target="_blank" rel="noopener">Datenschutz<span class="sr-only"> (öffnet in neuem Tab)</span></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Heinze Automatisierungstechnik. Alle Rechte vorbehalten.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

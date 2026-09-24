@@ -1,0 +1,244 @@
+/* 3D-anchored callouts. The orchestrator sets --x/--y (px), data-dir and
+   toggles .is-visible / .is-active every frame. Only the root transform moves;
+   everything that animates lives on the children. */
+#callouts {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.callout {
+  --x: -100px;
+  --y: -100px;
+  --len: 46px;
+  --dx: 1;
+  --dy: -1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform: translate3d(var(--x), var(--y), 0);
+  will-change: transform;
+  visibility: hidden;
+  transition: visibility 0s 0.5s;
+}
+
+.callout[data-dir='ne'] { --dx: 1; --dy: -1; }
+.callout[data-dir='nw'] { --dx: -1; --dy: -1; }
+.callout[data-dir='se'] { --dx: 1; --dy: 1; }
+.callout[data-dir='sw'] { --dx: -1; --dy: 1; }
+
+.callout.is-visible {
+  visibility: visible;
+  transition: visibility 0s 0s;
+}
+
+/* Dot: ring + red core + pulsing halo */
+.callout__dot {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 235, 232, 0.9);
+  background: radial-gradient(circle, var(--red) 0 2.5px, rgba(255, 51, 51, 0.25) 3px 100%);
+  box-shadow: 0 0 12px rgba(255, 51, 51, 0.7);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.35s var(--ease-soft), transform 0.5s var(--ease-out);
+}
+
+.callout__dot::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 51, 51, 0.8);
+  animation: callout-pulse 2.2s var(--ease-out) infinite;
+}
+
+@keyframes callout-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  70%,
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+/* Line: diagonal hairline toward data-dir */
+.callout__line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--len);
+  height: 1px;
+  transform-origin: 0 0;
+  background: linear-gradient(90deg, rgba(255, 235, 232, 0.2), rgba(255, 235, 232, 0.85));
+  transform: rotate(calc(var(--dy) * 45deg)) scaleX(0);
+  transition: transform 0.45s var(--ease-out), opacity 0.3s;
+}
+
+.callout[data-dir='nw'] .callout__line,
+.callout[data-dir='sw'] .callout__line {
+  transform: rotate(calc(180deg - var(--dy) * 45deg)) scaleX(0);
+}
+
+/* Label pill, attached at the end of the line */
+.callout__label {
+  --ox: calc(var(--dx) * var(--len) * 0.7071);
+  --oy: calc(var(--dy) * var(--len) * 0.7071);
+  position: absolute;
+  left: var(--ox);
+  top: var(--oy);
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  column-gap: 9px;
+  align-items: baseline;
+  padding: 8px 14px 9px 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 210, 205, 0.16);
+  /* opaque by default; the glass blur is reserved for the high quality tier (html.q-high) */
+  background: rgba(16, 4, 4, 0.84);
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(calc(var(--tx, 0%)), calc(var(--ty, 0%))) scale(0.92);
+  transform-origin: var(--origin, 0% 100%);
+  transition:
+    opacity 0.4s var(--ease-soft),
+    transform 0.5s var(--ease-out),
+    border-color 0.4s,
+    box-shadow 0.4s,
+    background-color 0.4s;
+}
+
+html.q-high .callout__label {
+  background: rgba(16, 4, 4, 0.66);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+.callout[data-dir='ne'] .callout__label { --tx: 0%; --ty: -100%; --origin: 0% 100%; }
+.callout[data-dir='nw'] .callout__label { --tx: -100%; --ty: -100%; --origin: 100% 100%; }
+.callout[data-dir='se'] .callout__label { --tx: 0%; --ty: 0%; --origin: 0% 0%; }
+.callout[data-dir='sw'] .callout__label { --tx: -100%; --ty: 0%; --origin: 100% 0%; }
+
+.callout__idx {
+  grid-row: 1 / span 2;
+  align-self: start;
+  padding-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--red);
+}
+
+.callout__label b {
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.callout__label small {
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+/* visible */
+.callout.is-visible .callout__dot {
+  opacity: 0.75;
+  transform: scale(0.85);
+}
+
+.callout.is-visible .callout__line {
+  transform: rotate(calc(var(--dy) * 45deg)) scaleX(1);
+  opacity: 0.6;
+  transition-delay: 0.08s;
+}
+
+.callout.is-visible[data-dir='nw'] .callout__line,
+.callout.is-visible[data-dir='sw'] .callout__line {
+  transform: rotate(calc(180deg - var(--dy) * 45deg)) scaleX(1);
+}
+
+.callout.is-visible .callout__label {
+  opacity: 0.72;
+  transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(0.96);
+  transition-delay: 0.16s, 0.16s, 0s, 0s, 0s;
+}
+
+/* active */
+.callout.is-active .callout__dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.callout.is-active .callout__line {
+  opacity: 1;
+}
+
+.callout.is-active .callout__label {
+  opacity: 1;
+  transform: translate(var(--tx, 0%), var(--ty, 0%)) scale(1);
+  border-color: rgba(255, 70, 64, 0.65);
+  background: rgba(30, 6, 6, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(255, 51, 51, 0.12),
+    0 0 30px -6px rgba(255, 51, 51, 0.55),
+    0 12px 30px -12px rgba(0, 0, 0, 0.9);
+}
+
+.callout:not(.is-active) .callout__dot::after {
+  animation-play-state: paused;
+  opacity: 0;
+}
+
+@media (max-width: 767px) {
+  .callout {
+    --len: 30px;
+  }
+
+  .callout__label {
+    padding: 6px 10px 7px 9px;
+    border-radius: 10px;
+  }
+
+  .callout__label small {
+    display: none;
+  }
+
+  .callout__label b {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .callout__dot::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .callout__line,
+  .callout__label,
+  .callout__dot {
+    transition-property: opacity;
+  }
+}

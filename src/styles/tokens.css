@@ -1,0 +1,53 @@
+:root {
+  /* Brand (heinze-at.de) */
+  --bg: #0a0202;
+  --bg-2: #140505;
+  --bg-3: #1d0909;
+  --line: rgba(255, 200, 200, 0.1);
+  --line-2: rgba(255, 200, 200, 0.18);
+  --line-3: rgba(255, 200, 200, 0.28);
+  --text: #f7f2f0;
+  --text-2: rgba(255, 225, 222, 0.68);
+  --text-3: rgba(255, 225, 222, 0.52); /* ≈4.6:1 on --bg: dimmed titles, hairline labels */
+  --text-3a: rgba(255, 225, 222, 0.6); /* ≈5.9:1: small mono text under 14 px */
+  --red: #ff3333;
+  --red-deep: #cc0000;
+  --brand-red: #ba2b29;
+  --glow: rgba(255, 51, 51, 0.35);
+  --pink: #ffc4bf;
+  --grad-text: linear-gradient(92deg, #ffd0cb 0%, #ff8a80 38%, #ff4a42 70%, #ff3333 100%);
+  --glass: rgba(24, 7, 7, 0.52);
+  --glass-strong: rgba(18, 5, 5, 0.78);
+
+  /* Type */
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --fs-display: clamp(46px, 5.6vw, 92px);
+  --fs-h2: clamp(34px, 4.1vw, 68px);
+  --fs-h3: clamp(19px, 1.45vw, 23px);
+  --fs-lead: clamp(16px, 1.18vw, 19px);
+  --fs-body: clamp(15px, 1.02vw, 16.5px);
+  --fs-small: 13.5px;
+  --fs-mono: 11.5px;
+
+  /* Layout */
+  --max: 1320px;
+  --pad: clamp(20px, 5vw, 72px);
+  --header-h: 76px;
+  --radius: 22px;
+  --radius-sm: 14px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-h: 64px;
+    --radius: 18px;
+  }
+}

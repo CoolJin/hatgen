@@ -1,0 +1,13 @@
+/* HATGEN product page: global styles (UI agent). Imported from src/main.js. */
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+@import './tokens.css';
+@import './base.css';
+@import './components.css';
+@import './chrome.css';
+@import './callouts.css';
+@import './sections.css';
+@import './checkout.css';
+@import './fx.css';

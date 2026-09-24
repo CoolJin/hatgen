@@ -1,0 +1,545 @@
+/* Buttons ------------------------------------------------------------------ */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  --btn-h: 54px;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: var(--btn-h);
+  padding: 0 26px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    background-color 0.35s var(--ease-soft),
+    border-color 0.35s var(--ease-soft),
+    box-shadow 0.45s var(--ease-soft),
+    color 0.35s var(--ease-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn__label,
+.btn__icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+.btn__icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.btn:hover .btn__icon:not(.btn__icon--lead) {
+  transform: translateX(3px);
+}
+
+.btn--primary {
+  color: #fff;
+  /* a touch deeper than --red so the white label passes 4.5:1; the glow stays #ff3333 */
+  background: linear-gradient(180deg, #e0302c 0%, #c81e1e 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 200, 196, 0.45),
+    inset 0 0 0 1px rgba(255, 120, 115, 0.35),
+    0 12px 32px -12px rgba(255, 51, 51, 0.75),
+    0 0 42px -14px rgba(255, 51, 51, 0.8);
+}
+
+/* shine sweep */
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.42) 48%, rgba(255, 255, 255, 0.08) 56%, transparent 68%);
+  transform: translateX(-110%);
+  transition: transform 0.9s var(--ease-out);
+}
+
+.btn--primary:hover::after {
+  transform: translateX(110%);
+}
+
+.btn--primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 210, 206, 0.55),
+    inset 0 0 0 1px rgba(255, 140, 135, 0.5),
+    0 16px 40px -12px rgba(255, 51, 51, 0.9),
+    0 0 60px -10px rgba(255, 51, 51, 0.85);
+}
+
+.btn--ghost {
+  color: var(--text);
+  /* opaque enough to read over the 3D without a backdrop blur */
+  background: linear-gradient(180deg, rgba(40, 12, 12, 0.5), rgba(20, 6, 6, 0.5));
+  border: 1px solid var(--line-2);
+  box-shadow: inset 0 1px 0 rgba(255, 230, 226, 0.05);
+}
+
+.btn--ghost .btn__icon {
+  color: var(--red);
+}
+
+.btn--ghost:hover {
+  border-color: rgba(255, 90, 85, 0.55);
+  background: rgba(255, 51, 51, 0.07);
+  box-shadow: 0 0 34px -12px var(--glow);
+}
+
+.btn--sm {
+  --btn-h: 40px;
+  padding: 0 18px;
+  font-size: 13.5px;
+}
+
+.btn:focus-visible {
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.btn:active {
+  transition-duration: 0.1s;
+}
+
+/* Chips -------------------------------------------------------------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 240, 238, 0.025);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.chip--accent {
+  color: #fff;
+  border-color: rgba(255, 51, 51, 0.55);
+  background: rgba(255, 51, 51, 0.12);
+  box-shadow: 0 0 22px -8px var(--glow), inset 0 0 12px -6px rgba(255, 51, 51, 0.6);
+}
+
+/* Glass -------------------------------------------------------------------- */
+.glass {
+  position: relative;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 220, 215, 0.055), rgba(255, 220, 215, 0.015) 40%, rgba(255, 220, 215, 0.01)),
+    var(--glass);
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 230, 226, 0.08),
+    0 30px 80px -30px rgba(0, 0, 0, 0.8);
+}
+
+/* the blur re-renders every frame over the live canvas: high tier only (see callouts.css),
+   elsewhere a denser tint does the job */
+html:not(.q-high) .glass {
+  background:
+    linear-gradient(180deg, rgba(255, 220, 215, 0.055), rgba(255, 220, 215, 0.015) 40%, rgba(255, 220, 215, 0.01)),
+    var(--glass-strong);
+}
+
+html.q-high .glass {
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+/* Model toggle (radiogroup) ------------------------------------------------ */
+.model-toggle {
+  --pad-t: 5px;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  padding: var(--pad-t);
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: rgba(20, 5, 5, 0.78);
+  isolation: isolate;
+}
+
+.model-toggle__thumb {
+  position: absolute;
+  z-index: -1;
+  top: var(--pad-t);
+  bottom: var(--pad-t);
+  left: var(--pad-t);
+  width: calc(50% - var(--pad-t));
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(228, 44, 40, 0.96), rgba(196, 26, 26, 0.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 200, 196, 0.5),
+    0 8px 26px -8px rgba(255, 51, 51, 0.8);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.model-toggle[data-active='1'] .model-toggle__thumb {
+  transform: translateX(100%);
+}
+
+.model-toggle__opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 150px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  color: var(--text-2);
+  transition: color 0.4s var(--ease-soft);
+}
+
+.model-toggle__opt[aria-checked='true'] {
+  color: #fff;
+}
+
+.model-toggle__opt:hover:not([aria-checked='true']) {
+  color: var(--text);
+}
+
+.model-toggle__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.model-toggle__kw {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+.model-toggle__opt[aria-checked='true'] .model-toggle__kw {
+  opacity: 1;
+}
+
+.model-toggle--sm .model-toggle__opt {
+  min-width: 128px;
+  padding: 9px 18px;
+}
+
+.model-toggle--sm .model-toggle__name {
+  font-size: 14.5px;
+}
+
+/* the focused option is the checked one (roving tabindex), i.e. the red thumb: a white ring
+   with a dark gap around it (a red ring on red would be invisible) */
+.model-toggle__opt:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+/* Step list (pinned scenes) ------------------------------------------------ */
+.stepbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+}
+
+.stepbar__seg {
+  position: relative;
+  flex: 1 1 0;
+  max-width: 64px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 210, 205, 0.14);
+  overflow: hidden;
+}
+
+.stepbar__seg i {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--f, 0));
+}
+
+.stepbar__count {
+  margin-left: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-3a);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepbar__count b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.steps {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  /* tallest state (all rows + the longest body), measured in steps.js: no layout jump */
+  min-height: var(--steps-min, 0px);
+}
+
+.step {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--red), rgba(255, 51, 51, 0));
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  transition: transform 0.9s var(--ease-out);
+}
+
+.step.is-active::before {
+  transform: scaleX(1);
+}
+
+.step__h {
+  font: inherit;
+}
+
+.step__head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  width: 100%;
+  padding: 15px 0 14px;
+  text-align: left;
+  color: var(--text-3);
+  transition: color 0.5s var(--ease-soft);
+}
+
+.step__head:hover {
+  color: var(--text-2);
+}
+
+.step__idx {
+  flex: none;
+  width: 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.5s var(--ease-soft);
+}
+
+.step__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.step.is-active .step__head {
+  color: var(--text);
+}
+
+.step.is-active .step__idx {
+  color: var(--red);
+}
+
+.step__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.7s var(--ease-out),
+    opacity 0.45s var(--ease-soft);
+}
+
+.step.is-active .step__body {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 0.8s var(--ease-out),
+    opacity 0.7s 0.12s var(--ease-soft);
+}
+
+.step__inner {
+  min-height: 0;
+  overflow: hidden;
+  padding-left: 38px;
+}
+
+.step__inner p {
+  max-width: 44ch;
+  padding-bottom: 18px;
+  color: var(--text-2);
+  font-size: 15.5px;
+  line-height: 1.6;
+  transform: translateY(8px);
+  transition: transform 0.8s var(--ease-out);
+}
+
+.step.is-active .step__inner p {
+  transform: none;
+}
+
+.steps--compact .step__head {
+  padding: 12px 0 11px;
+}
+
+.steps--compact .step__inner p {
+  padding-bottom: 14px;
+}
+
+.step--intro .step__inner {
+  display: none;
+}
+
+/* Probestart button */
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: -4px 0 20px;
+  padding: 0 16px 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 51, 51, 0.5);
+  background: rgba(255, 51, 51, 0.08);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.4s;
+}
+
+.btn-start:hover {
+  background: rgba(255, 51, 51, 0.16);
+  border-color: var(--red);
+  box-shadow: 0 0 28px -8px var(--glow);
+}
+
+.btn-start__led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a1515;
+  box-shadow: inset 0 0 0 1px rgba(255, 120, 115, 0.4);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-start__state {
+  color: var(--red);
+}
+
+.btn-start__state:empty {
+  display: none;
+}
+
+.btn-start.is-preheat .btn-start__led {
+  background: #ffae3a;
+  box-shadow: 0 0 10px #ff9a1f;
+  animation: led-blink 0.5s steps(2) infinite;
+}
+
+.btn-start.is-running .btn-start__led {
+  background: #3bff7a;
+  box-shadow: 0 0 12px #22e866;
+  animation: none;
+}
+
+.btn-start.is-running,
+.btn-start.is-preheat {
+  border-color: var(--red);
+}
+
+/* Touch: 44 px targets */
+@media (pointer: coarse) {
+  .btn--sm {
+    --btn-h: 44px;
+  }
+
+  .btn-start {
+    height: 44px;
+  }
+
+  .step__head,
+  .steps--compact .step__head {
+    min-height: 44px;
+  }
+}
+
+@keyframes led-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Power bars (configurator) ------------------------------------------------ */
+.bar {
+  position: relative;
+  height: 8px;
+  border-radius: 8px;
+  background: rgba(255, 210, 205, 0.08);
+  overflow: hidden;
+}
+
+.bar__max,
+.bar__cont {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 8px;
+  transform-origin: 0 50%;
+  transition: width 0.9s var(--ease-out);
+}
+
+.bar__max {
+  width: calc(var(--max) * 100%);
+  background: repeating-linear-gradient(115deg, rgba(255, 90, 85, 0.55) 0 3px, rgba(255, 90, 85, 0.18) 3px 6px);
+}
+
+.bar__cont {
+  width: calc(var(--cont) * 100%);
+  background: linear-gradient(90deg, #b31d1d, var(--red));
+  box-shadow: 0 0 16px rgba(255, 51, 51, 0.6);
+}
+
+/* Reveal helpers: JS sets initial states (opacity only); nothing hidden without JS. */
