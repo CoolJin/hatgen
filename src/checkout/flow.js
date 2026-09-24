@@ -197,17 +197,24 @@ export function createFlow(root, hooks = {}) {
     root.querySelector('[data-sum-total]').textContent = fmtPrice(t.total);
     root.querySelector('[data-sum-vat]').textContent = `darin enthalten 19${NB}% MwSt.: ${fmtPrice(t.vat)}`;
 
-    const name = [d.firstName, d.lastName].filter(Boolean).join(' ');
-    const addr = [esc(name), esc(d.company), esc(d.street), esc([d.zip, d.city].filter(Boolean).join(' '))].filter(Boolean).join('<br>');
-    const where =
-      state.delivery === 'versand'
-        ? `<p>${addr}</p><p class="co-recap__sub">per Spedition · ca. ${COMMON.shippingDays}${NB}Werktage</p>`
-        : `<p>Heinze Automatisierungstechnik<br>Utzstetter Str. 7/2<br>73577 Ruppertshofen</p><p class="co-recap__sub">Abholung ab Lager · Vorführung möglich</p>`;
-    const contact = `<p>${esc(name)}<br>${esc(d.email)}<br>${esc(d.phone)}</p>`;
+    const tr = (v) => String(v ?? '').trim();
+    const name = [tr(d.firstName), tr(d.lastName)].filter(Boolean).join(' ');
+    const place = [tr(d.zip), tr(d.city)].filter(Boolean).join(' ');
+    const addr = [name, tr(d.company), tr(d.street), place].filter(Boolean).map(esc).join('<br>');
+    const pickup = state.delivery !== 'versand';
+    const where = pickup
+      ? `<p>Heinze Automatisierungstechnik<br>Utzstetter Str. 7/2<br>73577${NB}Ruppertshofen</p><p class="co-recap__sub">Abholung ab Lager · Vorführung möglich</p>`
+      : `<p>${addr}</p><p class="co-recap__sub">per Spedition · ca. ${COMMON.shippingDays}${NB}Werktage</p>`;
+    const contact = `<p>${[name, tr(d.company), tr(d.email), tr(d.phone)].filter(Boolean).map(esc).join('<br>')}</p>`;
+    // pickup: an optional billing address the user entered must not silently disappear
+    const billing = pickup && [d.company, d.street, d.zip, d.city].some((v) => tr(v));
+    const item = (k, html, go, wide = false) =>
+      `<div class="co-recap__item${wide ? ' co-recap__item--wide' : ''}"><span class="co-recap__k">${k}</span>${html}${go != null ? `<button class="co-edit" type="button" data-go="${go}">Ändern</button>` : ''}</div>`;
     root.querySelector('[data-summary-recap]').innerHTML =
-      `<div class="co-recap__item"><span class="co-recap__k">${state.delivery === 'versand' ? 'Lieferung an' : 'Abholung bei'}</span>${where}<button class="co-edit" type="button" data-go="${state.delivery === 'versand' ? 2 : 1}">Ändern</button></div>` +
-      `<div class="co-recap__item"><span class="co-recap__k">Kontakt</span>${contact}<button class="co-edit" type="button" data-go="2">Ändern</button></div>` +
-      (d.note ? `<div class="co-recap__item co-recap__item--wide"><span class="co-recap__k">Anmerkung</span><p>${esc(d.note)}</p></div>` : '');
+      item(pickup ? 'Abholung bei' : 'Lieferung an', where, pickup ? 1 : 2) +
+      item('Kontakt', contact, 2) +
+      (billing ? item('Rechnungsadresse', `<p>${addr}</p>`, 2) : '') +
+      (d.note ? item('Anmerkung', `<p>${esc(d.note)}</p>`, null, true) : '');
   }
 
   function renderDone() {
@@ -233,7 +240,12 @@ export function createFlow(root, hooks = {}) {
     });
     bar.style.transform = `scaleX(${Math.min(1, (s + (s < 4 ? 0.5 : 0)) / 4).toFixed(3)})`;
     back.hidden = s === 0 || s === 4;
-    foot.hidden = s === 4;
+    // footer: nav buttons on the form steps, the done actions on the success step; the
+    // required privacy checkbox sits right above the order button on the review step
+    navRow.hidden = s === 4;
+    doneRow.hidden = s !== 4;
+    privacyField.hidden = s !== LAST_FORM_STEP;
+    shopLine.hidden = s >= LAST_FORM_STEP;
     demo.hidden = s !== LAST_FORM_STEP;
     nextLabel.textContent = s === LAST_FORM_STEP ? 'Zahlungspflichtig bestellen' : 'Weiter';
     next.classList.toggle('co-next--order', s === LAST_FORM_STEP);
@@ -278,7 +290,8 @@ export function createFlow(root, hooks = {}) {
       }
       if (first) {
         const input = fieldEl(first)?.querySelector('input, textarea');
-        input?.focus();
+        input?.focus({ preventScroll: true });
+        reveal(input);
         announce('Bitte prüfen Sie die markierten Felder.');
         shake();
         return false;
@@ -294,6 +307,18 @@ export function createFlow(root, hooks = {}) {
       showError('privacy', '');
     }
     return true;
+  }
+
+  // Scroll a field to the middle of the step body (never the page behind).
+  function reveal(el) {
+    if (!el || !body.contains(el)) return;
+    const target = el.closest('.co-field') || el;
+    const r = target.getBoundingClientRect();
+    const b = body.getBoundingClientRect();
+    if (!b.height || !r.height) return;
+    const d = r.top + r.height / 2 - (b.top + b.height * 0.45);
+    if (Math.abs(d) < 12) return;
+    body.scrollTo({ top: body.scrollTop + d, behavior: reducedMotion ? 'auto' : 'smooth' });
   }
 
   function shake() {
@@ -317,7 +342,11 @@ export function createFlow(root, hooks = {}) {
     state.step = n;
     if (n === 3) renderSummary();
     if (n === 4) renderDone();
+    const had = document.activeElement;
     renderChrome();
+    // the focused control may just have been hidden (Weiter on the success step, Zurück on
+    // step 1): park focus on the panel until the new heading takes it, never on <body>
+    if (had && had !== document.body && root.contains(had) && (had.closest('[hidden]') || !had.getClientRects().length)) panel.focus({ preventScroll: true });
     hooks.onStep?.(n, from);
 
     const a = steps[from];
@@ -333,22 +362,21 @@ export function createFlow(root, hooks = {}) {
     announce(n === 4 ? `Vielen Dank! Bestellnummer (Demo) ${state.orderNo}. Es wurde nichts übermittelt.` : `Schritt ${n + 1} von 4: ${STEP_NAMES[n]}`);
     if (instant || reducedMotion || a === b) {
       swap();
-      if (!instant && reducedMotion) gsap.fromTo(b, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, clearProps: 'opacity,visibility' });
+      if (!instant && reducedMotion) gsap.fromTo(b, { opacity: 0 }, { opacity: 1, duration: 0.25, clearProps: 'opacity' });
       return;
     }
+    // opacity only (no autoAlpha): the incoming heading must stay focusable
     const outEls = [...a.children];
+    const inEls = [...b.children];
     stepTl = gsap
       .timeline()
-      .to(outEls, { autoAlpha: 0, x: -22 * dir, duration: 0.22, ease: 'power2.in', stagger: 0.015 })
+      .to(outEls, { opacity: 0, x: -22 * dir, duration: 0.22, ease: 'power2.in', stagger: 0.015 })
+      .set(inEls, { opacity: 0, x: 26 * dir })
       .add(() => {
-        gsap.set(outEls, { clearProps: 'opacity,visibility,transform' });
+        gsap.set(outEls, { clearProps: 'opacity,transform' });
         swap();
       })
-      .fromTo(
-        [...b.children],
-        { autoAlpha: 0, x: 26 * dir },
-        { autoAlpha: 1, x: 0, duration: 0.6, ease: 'expo.out', stagger: 0.045, clearProps: 'opacity,visibility,transform' }
-      );
+      .to(inEls, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out', stagger: 0.045, clearProps: 'opacity,transform' });
   }
 
   function submit() {
@@ -382,7 +410,32 @@ export function createFlow(root, hooks = {}) {
   // ---------------------------------------------------------------- events
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    // Button-Lösung: on the review step only the explicit order button places the order
+    if (state.step === LAST_FORM_STEP && e.submitter && e.submitter !== next) return;
     submit();
+  });
+
+  // Enter in a text field: validate that field and move on to the next one, instead of
+  // validating (and reddening) the whole step. Only the last field submits the step.
+  // On the review step Enter never places the order (implicit submission).
+  form.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.isComposing || e.defaultPrevented) return;
+    const t = e.target;
+    if (t.tagName !== 'INPUT') return;
+    if (state.step === 2 && FIELDS.includes(t.name)) {
+      const inputs = [...steps[2].querySelectorAll('input')].filter((el) => !el.closest('[hidden]') && el.getClientRects().length);
+      const i = inputs.indexOf(t);
+      if (i < 0 || i === inputs.length - 1) return; // last field: submit the step
+      e.preventDefault();
+      if (RULES[t.name]) {
+        touched.add(t.name);
+        validateField(t.name);
+      }
+      inputs[i + 1].focus({ preventScroll: true });
+      reveal(inputs[i + 1]);
+    } else if (state.step === LAST_FORM_STEP && /^(radio|checkbox)$/.test(t.type)) {
+      e.preventDefault();
+    }
   });
   back.addEventListener('click', () => go(state.step - 1));
   root.addEventListener('click', (e) => {
@@ -519,7 +572,8 @@ export function createFlow(root, hooks = {}) {
     // elements animated by the shell on open
     staggerTargets() {
       const cur = steps[state.step];
-      return [...root.querySelectorAll('.co-head__top > *, .co-head__row > *, .co-steps, .co-bar'), ...cur.children, foot].filter((el) => !el.hidden);
+      return [...root.querySelectorAll('.co-head__top > *, .co-head__row > *, .co-steps, .co-bar'), ...cur.children, ...root.querySelectorAll('.co-foot > *')].filter((el) => !el.hidden);
     },
+    reveal,
   };
 }

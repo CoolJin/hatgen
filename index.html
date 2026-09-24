@@ -114,7 +114,7 @@
     <div class="loader__inner">
       <div class="loader__marks">
         <svg class="loader__mark loader__mark--base" viewBox="0 0 650 247" aria-hidden="true"><use href="#hat-mark"/></svg>
-        <svg class="loader__mark loader__mark--fill" viewBox="0 0 650 247" aria-hidden="true"><use href="#hat-mark"/></svg>
+        <span class="loader__glow" aria-hidden="true"><svg class="loader__mark loader__mark--fill" viewBox="0 0 650 247"><use href="#hat-mark"/></svg></span>
       </div>
       <div class="loader__bar" aria-hidden="true"><span class="loader__fill"></span></div>
       <div class="loader__meta">
@@ -743,7 +743,7 @@
         <div class="kontakt__content">
           <p class="eyebrow" data-reveal="fade">Jetzt bestellen oder beraten lassen</p>
           <h2 class="h2 kontakt__title" id="kontakt-title" data-reveal="lines">Bereit, wenn Sie es sind.</h2>
-          <p class="sub" data-reveal="fade">Bestellen Sie direkt im Shop oder lassen Sie sich persönlich beraten.</p>
+          <p class="sub" data-reveal="fade">Bestellen Sie im <a class="link" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener"><span class="nw">Heinze-Shop</span><span class="sr-only"> (öffnet in neuem Tab)</span></a>, probieren Sie die 3D-Bestellung aus oder lassen Sie sich persönlich beraten.</p>
           <div class="btn-row kontakt__actions" data-reveal="fade">
             <a class="btn btn--primary" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener" data-shop data-checkout data-magnetic>
               <span class="btn__label">Jetzt bestellen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg>
@@ -816,7 +816,7 @@
       <span class="co-hud__v"></span>
     </div>
 
-    <div class="co-panel">
+    <div class="co-panel" tabindex="-1">
       <span class="co-grip" aria-hidden="true"></span>
       <header class="co-head">
         <div class="co-head__top">
@@ -846,6 +846,7 @@
           <!-- 1 · Modell & Menge -->
           <section class="co-step" data-step="0" aria-labelledby="co-h0">
             <h3 class="co-h" id="co-h0" tabindex="-1">Welche Leistung brauchen Sie?</h3>
+            <p class="co-lead">Interaktive Demo. Zum echten Kauf geht es in den <a class="link co-inline" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener"><span class="nw">Heinze-Shop</span><svg aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a>.</p>
             <fieldset class="co-choice">
               <legend class="co-label">Modell</legend>
               <label class="co-card">
@@ -885,7 +886,7 @@
 
           <!-- 2 · Lieferung -->
           <section class="co-step" data-step="1" aria-labelledby="co-h1" hidden>
-            <h3 class="co-h" id="co-h1" tabindex="-1">Wie kommt er zu Ihnen?</h3>
+            <h3 class="co-h" id="co-h1" tabindex="-1">Wie kommt Ihr <span class="hatgen">HATGEN</span> zu Ihnen?</h3>
             <fieldset class="co-choice">
               <legend class="co-label">Lieferart</legend>
               <label class="co-card co-card--icon">
@@ -963,7 +964,7 @@
                 </div>
                 <div class="co-field co-field--city" data-field="city">
                   <label for="co-city">Ort <span class="co-opt" data-when="abholung" hidden>optional</span></label>
-                  <input id="co-city" name="city" type="text" autocomplete="address-level2" enterkeyhint="next" aria-describedby="co-city-err">
+                  <input id="co-city" name="city" type="text" autocomplete="address-level2" enterkeyhint="done" aria-describedby="co-city-err">
                   <p class="co-err" id="co-city-err"></p>
                 </div>
               </div>
@@ -1020,14 +1021,6 @@
               <div class="co-recap" data-summary-recap></div>
             </div>
 
-            <div class="co-field co-field--check" data-field="privacy">
-              <label class="co-check">
-                <input type="checkbox" name="privacy" id="co-privacy" aria-describedby="co-privacy-err">
-                <span class="co-check__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
-                <span class="co-check__txt">Ich habe die <a class="link" href="https://heinze-at.de/de/privacy" target="_blank" rel="noopener">Datenschutzerklärung<span class="sr-only"> (öffnet in neuem Tab)</span></a> gelesen.</span>
-              </label>
-              <p class="co-err" id="co-privacy-err"></p>
-            </div>
           </section>
 
           <!-- 5 · Erfolg -->
@@ -1039,22 +1032,31 @@
             <h3 class="co-done__h" id="co-h4" tabindex="-1">Vielen Dank!</h3>
             <p class="co-done__lead" data-when="versand">Ihr <span class="hatgen">HATGEN</span> ist verpackt, verzurrt und bereit für die Spedition.</p>
             <p class="co-done__lead" data-when="abholung" hidden>Ihr <span class="hatgen">HATGEN</span> läuft sich schon warm. Wir freuen uns auf Ihren Besuch in Ruppertshofen.</p>
-            <p class="co-demo co-demo--strong"><b>Demo:</b> Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert. Bestellen können Sie im Heinze-Shop oder telefonisch.</p>
+            <p class="co-demo co-demo--strong"><b>Demo:</b> Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert. Bestellen können Sie im <span class="nw">Heinze-Shop</span> oder telefonisch.</p>
             <dl class="co-done__sum" data-done-sum></dl>
-            <div class="btn-row co-done__actions">
-              <button class="btn btn--primary" type="button" data-co-close><span class="btn__label">Zurück zur Seite</span></button>
-              <a class="btn btn--ghost" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener"><span class="btn__label">Im Heinze-Shop ansehen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a>
-            </div>
             <a class="co-phone" href="tel:+497176452100"><svg aria-hidden="true"><use href="#i-phone"/></svg>Fragen? 07176 / 452100</a>
           </section>
         </div>
 
         <footer class="co-foot">
-          <div class="co-foot__row">
-            <button class="btn btn--ghost co-back" type="button"><svg class="btn__icon btn__icon--lead co-back__icon" aria-hidden="true"><use href="#i-arrow"/></svg><span class="btn__label">Zurück</span></button>
-            <button class="btn btn--primary co-next" type="submit"><span class="btn__label">Weiter</span><svg class="btn__icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          <div class="co-field co-field--check" data-field="privacy" hidden>
+            <label class="co-check">
+              <input type="checkbox" name="privacy" id="co-privacy" aria-describedby="co-privacy-err">
+              <span class="co-check__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+              <span class="co-check__txt">Ich habe die <a class="link" href="https://heinze-at.de/de/privacy" target="_blank" rel="noopener">Datenschutzerklärung<span class="sr-only"> (öffnet in neuem Tab)</span></a> gelesen.</span>
+            </label>
+            <p class="co-err" id="co-privacy-err"></p>
           </div>
-          <p class="co-demo" id="co-demo" hidden><b>Demo:</b> Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert.</p>
+          <div class="co-foot__row co-foot__nav">
+            <button class="btn btn--ghost co-back" type="button"><svg class="btn__icon btn__icon--lead co-back__icon" aria-hidden="true"><use href="#i-arrow"/></svg><span class="btn__label">Zurück</span></button>
+            <button class="btn btn--primary co-next" type="submit"><span class="btn__label">Weiter</span><svg class="btn__icon" aria-hidden="true"><use href="#i-arrow"/></svg><i class="co-spinner" aria-hidden="true"></i></button>
+          </div>
+          <div class="co-foot__row co-foot__done" hidden>
+            <button class="btn btn--primary" type="button" data-co-close><span class="btn__label">Zurück zur Seite</span></button>
+            <a class="btn btn--ghost" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener"><span class="btn__label">Im <span class="nw">Heinze-Shop</span> ansehen</span><svg class="btn__icon" aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a>
+          </div>
+          <p class="co-demo" id="co-demo" hidden><b>Demo:</b> Es wird keine Bestellung übermittelt und es werden keine Daten gespeichert. <a class="link co-inline" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener">Echt bestellen im <span class="nw">Heinze-Shop</span><svg aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a></p>
+          <p class="co-shopline">Echte Bestellung? <a class="link co-inline" href="https://heinze-at.de/de/products/75c289f5-a991-4a45-85c5-a8548c928f65" target="_blank" rel="noopener">Direkt im <span class="nw">Heinze-Shop</span> kaufen<svg aria-hidden="true"><use href="#i-ext"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></a></p>
         </footer>
       </form>
       <p class="sr-only" aria-live="polite" data-co-live></p>

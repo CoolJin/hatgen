@@ -64,12 +64,23 @@ export function createScene3D() {
   const available = () => !!scene;
 
   // ---------------------------------------------------------------- layout
+  // Stacked: framed into the free area above the sheet. With a fixed vertical FOV the
+  // product's on-screen height depends only on the distance, so the distance follows the
+  // free height (phones and portrait tablets get the same framing), and very narrow
+  // screens pull back further so the pallet / crate also fits the width.
+  let restFree = 0.38;
   function frameFor() {
+    const root = document.getElementById('checkout');
+    const panel = root?.querySelector('.co-panel');
     if (isStacked()) {
-      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-      return { stacked: true, ox: 0, oy: -0.3, distMul: Math.min(2.2, Math.max(1.35, 1.12 / Math.max(0.3, aspect))) };
+      const vh = Math.max(1, window.innerHeight);
+      const aspect = window.innerWidth / vh;
+      // layout box (not the entry transform); keep the resting value while the sheet is
+      // grown for typing
+      if (panel && panel.offsetHeight && !root.classList.contains('is-typing')) restFree = Math.min(0.6, Math.max(0.22, panel.offsetTop / vh));
+      const distMul = Math.min(3.2, Math.max(0.84 / restFree, 1.02 / Math.max(0.3, aspect)));
+      return { stacked: true, ox: 0, oy: -(1 - restFree) / 2 + 0.01, distMul };
     }
-    const panel = document.querySelector('.checkout .co-panel');
     const vw = window.innerWidth;
     // layout box (the entry animation transforms the panel)
     const right = panel && panel.offsetWidth ? panel.offsetLeft + panel.offsetWidth : vw * 0.4;
@@ -86,11 +97,11 @@ export function createScene3D() {
     const lifted = delivery === 'versand' && step >= 1;
     let s;
     if (step === 0) s = { az: 24, el: 9, dist: 3.45, ty: 0.42, sway: 0 };
-    else if (step === 1) s = lifted ? { az: 30, el: 13, dist: 3.95, ty: 0.5, sway: 0.25 } : { az: 16, el: 17, dist: 4.0, ty: 0.34, sway: 0.2, beam: 0.9, key: 1.1 };
+    else if (step === 1) s = lifted ? { az: 30, el: 13, dist: 3.95, ty: 0.5, sway: 0.25 } : { az: 16, el: 19, dist: 4.7, ty: 0.3, sway: 0.2, beam: 0.9, key: 1.1 };
     else if (step === 2) s = { az: 36, el: 18, dist: 4.7, ty: lifted ? 0.52 : 0.4, sway: 0.3, key: 0.85, beam: 0.45, dust: 0.3, backdrop: 0.32, exposure: 0.94, rim: 0.95 };
-    else if (step === 3) s = { az: -22, el: 11, dist: 4.05, ty: lifted ? 0.54 : 0.42, sway: 0.2, backdrop: 0.45 };
+    else if (step === 3) s = lifted ? { az: -22, el: 11, dist: 4.05, ty: 0.54, sway: 0.2, backdrop: 0.45 } : { az: -22, el: 16, dist: 4.6, ty: 0.36, sway: 0.2, backdrop: 0.45 };
     else if (lifted) s = { az: 30, el: 14, dist: 4.4, ty: 0.6, sway: 0, key: 1.15, rim: 1.15, backdrop: 0.6, beam: 0.9 };
-    else s = { az: 18, el: 9, dist: 4.0, ty: 0.4, sway: 0.15, power: 1, running: 1, key: 1.3, rim: 1.35, exposure: 1.1, beam: 1.2, bloom: 1.35, tint: 1.3, backdrop: 0.8, dust: 0.9 };
+    else s = { az: 18, el: 14, dist: 4.75, ty: 0.34, sway: 0.15, power: 1, running: 1, key: 1.3, rim: 1.35, exposure: 1.1, beam: 1.2, bloom: 1.35, tint: 1.3, backdrop: 0.8, dust: 0.9 };
     const out = { ...LOOK, ...s, ox: f.ox, oy: f.oy };
     out.dist *= f.distMul;
     if (f.stacked) {
@@ -244,7 +255,7 @@ export function createScene3D() {
         // crate panels fly off, straps come off, pallet sinks, unit back on the floor
         const panelsOut = { front: 0, back: 0, left: 0, right: 0, lid: 0, base: 0, label: 0 };
         tl.to(s, { ...panelsOut, duration: reducedMotion ? 0.01 : 0.55, ease: 'power2.in', stagger: 0 }, 0);
-        tl.to(s, { straps: 0, ring: 0, ringPulse: 0, duration: 0.35, ease: 'power1.in' }, 0);
+        tl.to(s, { straps: 0, ring: 0, ringPulse: 0, shock: 0, duration: 0.35, ease: 'power1.in' }, 0);
         tl.to(s, { pallet: -0.17, duration: 0.6, ease: 'power2.in' }, 0.15);
       }
       tl.to(A, { lift: 0, duration: 0.6, ease: 'power2.inOut' }, 0.15);
@@ -396,7 +407,7 @@ export function createScene3D() {
       propTl?.kill();
       const m = MODELS[model] || MODELS.s5500;
       if (delivery === 'versand') crateFinale({ orderNo, name, city, m, qty });
-      else pickupFinale();
+      else pickupFinale({ orderNo });
     };
     if (props) go();
     else loadProps().then(go);
@@ -458,25 +469,34 @@ export function createScene3D() {
     tl.to(fx, { orbit: -12, duration: 6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   }
 
-  function pickupFinale() {
+  // Pickup: the ring writes "ABHOLBEREIT" with the order number, the engine starts with
+  // a shockwave through the ring and a light burst, then one orbit around the running unit.
+  function pickupFinale({ orderNo }) {
     const s = props.state;
     showDelivery('abholung');
+    props.setRingText(`ABHOLBEREIT · ${orderNo} · 73577 RUPPERTSHOFEN · `);
     if (reducedMotion) {
       Object.assign(fx, { power: 1, running: 0, bright: 1 });
-      s.ringPulse = 1;
+      Object.assign(s, { ringPulse: 1, ringWrite: 1, shock: 0 });
       return;
     }
     const tl = gsap.timeline();
     finaleTl = tl;
     runTl?.kill();
-    tl.to(fx, { power: 1, duration: 0.3 }, 0.2);
-    tl.to(fx, { running: 1, duration: 0.6, ease: 'power2.in' }, 1.0);
-    tl.to(fx, { bright: 1, duration: 1.4, ease: 'power2.out' }, 1.0);
-    tl.to(s, { ringPulse: 1.2, duration: 0.8, ease: 'power2.out' }, 1.0);
-    tl.fromTo(fx, { flash: 0.6 }, { flash: 0, duration: 1.2, ease: 'power2.out' }, 1.2);
-    tl.add(() => thunk(0.5), 1.1);
-    // slow orbit around the running unit
-    tl.fromTo(fx, { orbit: 0 }, { orbit: -40, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1 }, 1.4);
+    tl.fromTo(s, { ringWrite: 0 }, { ringWrite: 1, duration: 1.7, ease: 'power2.inOut' }, 0.1);
+    tl.to(fx, { power: 1, duration: 0.3 }, 0.3);
+    tl.to(fx, { running: 1, duration: 0.5, ease: 'power2.in' }, 1.75);
+    tl.to(fx, { bright: 1, duration: 1.4, ease: 'power2.out' }, 1.9);
+    tl.fromTo(s, { shock: 0.001 }, { shock: 1, duration: 1.4, ease: 'power2.out' }, 1.9);
+    tl.set(s, { shock: 0 }, 3.31);
+    tl.to(s, { ringPulse: 1.2, duration: 0.8, ease: 'power2.out' }, 1.9);
+    tl.fromTo(fx, { flash: 0.8 }, { flash: 0, duration: 1.3, ease: 'power2.out' }, 1.9);
+    tl.add(() => thunk(0.9), 1.9);
+    // one orbit around the running unit, then a slow sway
+    tl.fromTo(fx, { orbit: 0 }, { orbit: 360, duration: 8, ease: 'power2.inOut' }, 2.5);
+    tl.set(fx, { orbit: 0 });
+    tl.to(fx, { orbit: -12, duration: 3, ease: 'sine.out' });
+    tl.to(fx, { orbit: 12, duration: 6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   }
 
   // back to the nearest front-facing angle

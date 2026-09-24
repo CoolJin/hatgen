@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { woodTexture, strapTexture, stencilTexture, labelTexture, ringTextTexture, rng } from './textures.js';
+import { woodTexture, strapTexture, stencilTexture, shadeTexture, labelTexture, ringTextTexture, RING_TEXT, rng } from './textures.js';
 
 // Pallet (x = length, z = depth), metres.
 export const PALLET = { l: 1.14, d: 0.78, h: 0.144 };
@@ -156,11 +156,14 @@ function pathLength(path) {
 
 // ------------------------------------------------------------------ materials
 function woodMaterial(tex, U) {
+  // roughness varies with the grain (texture green channel ~0.45..0.62 linear), so the
+  // boards do not read as one uniform plastic sheen
   const m = new THREE.MeshStandardMaterial({
     map: tex,
     bumpMap: tex,
     bumpScale: 0.9,
-    roughness: 0.8,
+    roughnessMap: tex,
+    roughness: 1.45,
     metalness: 0,
     vertexColors: true,
   });
@@ -226,6 +229,8 @@ const ringFragment = /* glsl */ `
 uniform float uAmount;
 uniform float uPulse;
 uniform float uTime;
+uniform float uWrite;
+uniform float uShock;
 uniform sampler2D uText;
 varying vec2 vP;
 #define TAU 6.28318530718
@@ -245,9 +250,14 @@ void main() {
   float tk = fract(u * 72.0 + uTime * 0.004);
   float tick = line((tk - 0.5) / 72.0 * TAU * r, 0.0022) * step(R0 + 0.012, r) * step(r, R0 + (fract(u * 8.0 + uTime * 0.004 + 0.0625 / 9.0) < 0.12 ? 0.05 : 0.026));
   c += tick * 0.9;
-  // text band
+  // text band, written on around the ring (uWrite 0..1) with a bright write head
   float tv = (r - 0.80) / 0.05;
-  if (tv > 0.0 && tv < 1.0) c += texture2D(uText, vec2(u * 3.0 - uTime * 0.012, 1.0 - tv)).r * 1.1;
+  if (tv > 0.0 && tv < 1.0) {
+    float wEnd = uWrite * 1.06;
+    float wm = clamp((wEnd - u) / 0.06, 0.0, 1.0);
+    c += texture2D(uText, vec2(u * 3.0 - uTime * 0.012, 1.0 - tv)).r * 1.1 * wm;
+    c += exp(-pow((u - wEnd + 0.02) * 70.0, 2.0)) * (1.0 - step(1.0, uWrite)) * 2.2;
+  }
   // dashed outer ring
   c += line(r - R1, 0.0022) * step(0.45, fract(u * 160.0 - uTime * 0.05)) * 0.8;
   // soft inner glow and expanding pulse waves
@@ -257,43 +267,77 @@ void main() {
   float rr1 = mix(0.5, 1.25, w1);
   float rr2 = mix(0.5, 1.25, w2);
   c += (exp(-pow((r - rr1) * 28.0, 2.0)) * (1.0 - w1) + exp(-pow((r - rr2) * 28.0, 2.0)) * (1.0 - w2)) * (0.35 + uPulse * 1.4);
+  // one strong shockwave (engine start)
+  float sr = mix(0.55, 1.28, uShock);
+  c += exp(-pow((r - sr) * 16.0, 2.0)) * (1.0 - uShock) * step(0.001, uShock) * 3.0;
   float fade = 1.0 - smoothstep(1.05, 1.3, r);
   vec3 col = vec3(1.0, 0.13, 0.1) * c * fade * uAmount * (0.72 + uPulse * 0.9);
   gl_FragColor = vec4(col, 1.0);
 }
 `;
 
-// Spark burst: velocity per point, integrated in the vertex shader.
+// Spark burst: hot streaks. Each spark is a camera-facing quad stretched between its
+// position now and 35 ms ago (motion streak), integrated in the vertex shader: ballistic
+// flight with one damped bounce off the floor. Colour cools from a white-yellow core over
+// orange to deep red.
 const sparkVertex = /* glsl */ `
-attribute vec4 aSeed; // life, size, delay, heat
+attribute vec3 aVel;
+attribute vec4 aSeed; // life, half-width (m), delay, heat
+attribute vec2 aCorner; // x: 0 head / 1 tail, y: -1 / +1 side
 uniform float uT;
-uniform float uPx;
+uniform float uFloor; // floor height in the sparks' local space (negative)
 varying float vA;
 varying float vHeat;
+varying float vSide;
+varying float vTail;
+const float G = 6.5;
+vec3 fly(float t) {
+  vec3 v = aVel;
+  float th = (v.y + sqrt(max(v.y * v.y - 2.0 * G * uFloor, 0.0))) / G; // floor contact
+  if (t < th) return v * t + vec3(0.0, -0.5 * G * t * t, 0.0);
+  vec3 ph = v * th + vec3(0.0, -0.5 * G * th * th, 0.0);
+  vec3 vb = vec3(v.x * 0.55, (G * th - v.y) * 0.35, v.z * 0.55);
+  float t2 = t - th;
+  vec3 p = ph + vb * t2 + vec3(0.0, -0.5 * G * t2 * t2, 0.0);
+  p.y = max(p.y, uFloor);
+  return p;
+}
 void main() {
   float t = max(0.0, uT - aSeed.z);
-  float life = aSeed.x;
-  float k = clamp(t / life, 0.0, 1.0);
-  vec3 v = position;
-  vec3 p = v * t * (1.0 - 0.35 * k) + vec3(0.0, -4.2, 0.0) * 0.5 * t * t;
-  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  gl_Position = projectionMatrix * mv;
-  vA = (uT > aSeed.z && k < 1.0) ? (1.0 - k) : 0.0;
+  float k = clamp(t / aSeed.x, 0.0, 1.0);
+  vec4 vh = modelViewMatrix * vec4(fly(t), 1.0);
+  vec4 vt = modelViewMatrix * vec4(fly(max(0.0, t - 0.035)), 1.0);
+  vec3 d = vh.xyz - vt.xyz;
+  float dl = length(d);
+  vec3 along = dl > 1e-5 ? d / dl : vec3(0.0, 1.0, 0.0);
+  vec3 side = cross(along, normalize(vh.xyz));
+  float sl = length(side);
+  side = sl > 1e-5 ? side / sl : vec3(1.0, 0.0, 0.0);
+  float w = aSeed.y * (1.0 - 0.55 * k);
+  vec4 p = aCorner.x > 0.5 ? vt : vh;
+  p.xyz += side * aCorner.y * w + along * (aCorner.x > 0.5 ? -w : w);
+  gl_Position = projectionMatrix * p;
+  vA = (uT > aSeed.z && k < 1.0) ? pow(1.0 - k, 1.5) : 0.0;
   vHeat = aSeed.w * (1.0 - k);
-  gl_PointSize = aSeed.y * uPx / max(0.2, -mv.z) * (0.5 + 0.5 * (1.0 - k));
+  vSide = aCorner.y;
+  vTail = aCorner.x;
 }
 `;
 const sparkFragment = /* glsl */ `
 varying float vA;
 varying float vHeat;
+varying float vSide;
+varying float vTail;
 void main() {
   if (vA <= 0.0) discard;
-  vec2 d = gl_PointCoord - 0.5;
-  float f = exp(-dot(d, d) * 18.0);
-  vec3 hot = vec3(1.0, 0.85, 0.6);
-  vec3 red = vec3(1.0, 0.12, 0.06);
-  vec3 col = mix(red, hot, clamp(vHeat, 0.0, 1.0)) * 5.0;
-  gl_FragColor = vec4(col * f * vA, 1.0);
+  float across = 1.0 - vSide * vSide;
+  float f = across * across * mix(1.0, 0.18, vTail);
+  vec3 core = vec3(1.0, 0.85, 0.5);
+  vec3 orange = vec3(1.0, 0.35, 0.05);
+  vec3 red = vec3(0.75, 0.04, 0.02);
+  float h = clamp(vHeat, 0.0, 1.0);
+  vec3 col = h > 0.5 ? mix(orange, core, h * 2.0 - 1.0) : mix(red, orange, h * 2.0);
+  gl_FragColor = vec4(col * 2.0 * f * vA, 1.0);
 }
 `;
 
@@ -354,10 +398,12 @@ export function createProps({ stage, quality = 'high' }) {
   steel.name = 'checkout:steel';
 
   // tints multiply the neutral grain texture (the warm key light adds the rest)
-  const pine = new THREE.Color('#efe0c4');
-  const pineDark = new THREE.Color('#d9c29c');
-  const ply = new THREE.Color('#f4eadb');
-  const plyEdge = new THREE.Color('#e4d0ad');
+  // (lower, less saturated than raw timber: next to the dark satin unit the boards must
+  // read as wood, not as a bright CG surface)
+  const pine = new THREE.Color('#cbb189');
+  const pineDark = new THREE.Color('#b39970');
+  const ply = new THREE.Color('#d8c6a6');
+  const plyEdge = new THREE.Color('#c7b08a');
 
   // ---------------------------------------------------------------- pallet
   const palletGroup = new THREE.Group();
@@ -521,10 +567,14 @@ export function createProps({ stage, quality = 'high' }) {
   const right = panel('right', wall(sw, C.h, { cross: true }), { p: [C.x - C.t / 2, C.h / 2, 0], r: [0, Math.PI / 2, 0] }, { p: [1.6, 0.5, 0.2], r: [0, 0.2, -0.8] });
   const left = panel('left', wall(sw, C.h, { cross: true }), { p: [-(C.x - C.t / 2), C.h / 2, 0], r: [0, -Math.PI / 2, 0] }, { p: [-1.6, 0.5, -0.1], r: [0, -0.2, 0.8] });
   const sideW = (sw - 2 * C.bw - C.bw) / 2; // between the frame and the middle batten
+  // the other half of each side wall and of the lid only get the contact shade of the battens
+  const sideShade = shadeTexture(renderer, sideW, ih);
   for (const p of [right, left]) {
     const tex = stencilTexture(renderer, 'side', sideW, ih);
     const d = addDecal(p.group, sideW, ih, tex, decalZ);
     d.position.x = -(C.bw / 2 + sideW / 2);
+    const sh = addDecal(p.group, sideW, ih, sideShade, decalZ);
+    sh.position.x = C.bw / 2 + sideW / 2;
   }
   const lid = panel('lid', wall(C.x * 2, C.z * 2, { cross: true }), { p: [0, C.h + C.t / 2, 0], r: [-Math.PI / 2, 0, 0] }, { p: [0, 1.35, 0.1], r: [0.25, 0.5, 0.1] });
   {
@@ -532,6 +582,8 @@ export function createProps({ stage, quality = 'high' }) {
     const lh = C.z * 2 - 2 * C.bw;
     const d = addDecal(lid.group, lw, lh, stencilTexture(renderer, 'lid', lw, lh), decalZ);
     d.position.x = -(C.bw / 2 + lw / 2);
+    const sh = addDecal(lid.group, lw, lh, shadeTexture(renderer, lw, lh), decalZ);
+    sh.position.x = C.bw / 2 + lw / 2;
   }
   // crate floor (under the generator, inside the walls)
   const baseMesh = (() => {
@@ -581,8 +633,17 @@ export function createProps({ stage, quality = 'high' }) {
   }
 
   // ---------------------------------------------------------------- marker ring
-  const ringTex = ringTextTexture(renderer);
-  const ringU = { uAmount: { value: 0 }, uPulse: { value: 0 }, uTime: { value: 0 }, uText: { value: ringTex } };
+  let ringTex = ringTextTexture(renderer);
+  let ringText = RING_TEXT;
+  const ringU = { uAmount: { value: 0 }, uPulse: { value: 0 }, uTime: { value: 0 }, uWrite: { value: 1 }, uShock: { value: 0 }, uText: { value: ringTex } };
+  // the finale writes the order number into the ring
+  function setRingText(text = RING_TEXT) {
+    if (text === ringText) return;
+    ringText = text;
+    ringTex.dispose();
+    ringTex = ringTextTexture(renderer, text);
+    ringU.uText.value = ringTex;
+  }
   const ringMat = additive(new THREE.ShaderMaterial({ uniforms: ringU, vertexShader: ringVertex, fragmentShader: ringFragment }));
   const ring = new THREE.Mesh(new THREE.CircleGeometry(1.32, quality === 'low' ? 64 : 128), ringMat);
   ring.rotation.x = -Math.PI / 2;
@@ -597,28 +658,42 @@ export function createProps({ stage, quality = 'high' }) {
   const SPARKS = quality === 'low' ? 110 : 220;
   const sparkGeo = new THREE.BufferGeometry();
   {
-    const v = new Float32Array(SPARKS * 3);
-    const s = new Float32Array(SPARKS * 4);
+    const vel = new Float32Array(SPARKS * 4 * 3);
+    const seed = new Float32Array(SPARKS * 4 * 4);
+    const corner = new Float32Array(SPARKS * 4 * 2);
+    const pos = new Float32Array(SPARKS * 4 * 3);
+    const idx = [];
     const r = rng(99);
+    const C4 = [[0, -1], [0, 1], [1, -1], [1, 1]];
     for (let i = 0; i < SPARKS; i++) {
       // mostly toward the viewer side (+z) and up, a few sideways
       const th = (r() - 0.5) * Math.PI * 1.5;
       const ph = r() * Math.PI * 0.55 + 0.1;
-      const sp = 1.1 + r() * r() * 3.2;
-      v[i * 3] = Math.sin(th) * Math.cos(ph) * sp;
-      v[i * 3 + 1] = Math.sin(ph) * sp * 0.9 + 0.4;
-      v[i * 3 + 2] = Math.abs(Math.cos(th)) * Math.cos(ph) * sp * 0.9 + 0.2;
-      s[i * 4] = 0.5 + r() * 0.9;
-      s[i * 4 + 1] = 0.012 + r() * 0.03;
-      s[i * 4 + 2] = r() * r() * 0.18;
-      s[i * 4 + 3] = r();
+      const sp = 1.2 + r() * r() * 3.4;
+      const v = [Math.sin(th) * Math.cos(ph) * sp, Math.sin(ph) * sp * 0.9 + 0.5, Math.abs(Math.cos(th)) * Math.cos(ph) * sp * 0.9 + 0.2];
+      const sd = [0.45 + r() * 0.8, 0.0022 + r() * 0.0032, r() * r() * 0.16, 0.55 + r() * 0.45];
+      for (let c = 0; c < 4; c++) {
+        const j = i * 4 + c;
+        vel.set(v, j * 3);
+        seed.set(sd, j * 4);
+        corner.set(C4[c], j * 2);
+      }
+      const b = i * 4;
+      idx.push(b, b + 2, b + 1, b + 1, b + 2, b + 3);
     }
-    sparkGeo.setAttribute('position', new THREE.BufferAttribute(v, 3));
-    sparkGeo.setAttribute('aSeed', new THREE.BufferAttribute(s, 4));
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    sparkGeo.setAttribute('aVel', new THREE.BufferAttribute(vel, 3));
+    sparkGeo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 4));
+    sparkGeo.setAttribute('aCorner', new THREE.BufferAttribute(corner, 2));
+    sparkGeo.setIndex(idx);
     sparkGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 6);
   }
-  const sparkU = { uT: { value: 99 }, uPx: { value: 600 } };
-  const sparks = new THREE.Points(sparkGeo, additive(new THREE.ShaderMaterial({ uniforms: sparkU, vertexShader: sparkVertex, fragmentShader: sparkFragment })));
+  const sparkU = { uT: { value: 99 }, uFloor: { value: -0.6 } };
+  const sparkMat = additive(new THREE.ShaderMaterial({ uniforms: sparkU, vertexShader: sparkVertex, fragmentShader: sparkFragment }));
+  sparkMat.side = THREE.DoubleSide;
+  const sparks = new THREE.Mesh(sparkGeo, sparkMat);
+  noShadowBake(sparks);
+  sparks.name = 'checkout:sparks';
   sparks.visible = false;
   sparks.frustumCulled = false;
   sparks.renderOrder = 5;
@@ -641,6 +716,8 @@ export function createProps({ stage, quality = 'high' }) {
     strapFloor: PALLET.h,
     ring: 0,
     ringPulse: 0,
+    ringWrite: 1, // 0..1 write-on of the ring text
+    shock: 0, // 0..1 progress of the shockwave (0 = none)
     base: 0,
     front: 0,
     back: 0,
@@ -697,6 +774,8 @@ export function createProps({ stage, quality = 'high' }) {
     // ring
     ringU.uAmount.value = state.ring;
     ringU.uPulse.value = state.ringPulse;
+    ringU.uWrite.value = state.ringWrite;
+    ringU.uShock.value = state.shock;
     ringU.uTime.value = elapsed;
     ring.visible = state.ring > 0.002;
 
@@ -711,9 +790,8 @@ export function createProps({ stage, quality = 'high' }) {
       sparkU.uT.value = state.sparkT;
       sparks.position.copy(labelWorld);
       sparks.visible = true;
-      const cam = stage.camera;
-      const size = stage.size;
-      sparkU.uPx.value = ((size.frameHeight || size.height) * (size.dpr || 1)) / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2));
+      // the floor (y 0 of the prop group) in the sparks' own space
+      sparkU.uFloor.value = -labelWorld.y + 0.004;
     } else sparks.visible = false;
     flash.visible = state.flash > 0.001;
     if (flash.visible) {
@@ -730,13 +808,14 @@ export function createProps({ stage, quality = 'high' }) {
   // Everything hidden, back at rest (the crate panels and pallet are reused). The label
   // texture holds the entered name and city: it is dropped, not kept for the next order.
   function reset() {
+    setRingText(RING_TEXT);
     if (labelMat.map) {
       labelMat.map.dispose();
       labelMat.map = null;
       labelMat.needsUpdate = true;
     }
     Object.assign(state, {
-      pallet: -0.17, clipGlow: 0, straps: 0, strapFloor: PALLET.h, ring: 0, ringPulse: 0,
+      pallet: -0.17, clipGlow: 0, straps: 0, strapFloor: PALLET.h, ring: 0, ringPulse: 0, ringWrite: 1, shock: 0,
       base: 0, front: 0, back: 0, left: 0, right: 0, lid: 0, crateKick: 0, label: 0, flash: 0, sparkT: 99, spin: 0,
     });
     update(0, 0);
@@ -794,6 +873,7 @@ export function createProps({ stage, quality = 'high' }) {
     dispose,
     setFrontStencil,
     setLabel,
+    setRingText,
     PALLET,
     CRATE,
     get drawCalls() {

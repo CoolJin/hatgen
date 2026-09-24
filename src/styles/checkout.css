@@ -13,8 +13,9 @@ html.checkout-lock {
   z-index: 120;
   isolation: isolate;
   color: var(--text);
-  /* drags on the 3D area must not scroll the page behind (iOS); the step body pans itself */
-  touch-action: none;
+  /* drags on the 3D area must not scroll the page behind (iOS); the step body pans itself.
+     Pinch zoom stays allowed everywhere (WCAG 1.4.4). */
+  touch-action: pinch-zoom;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -33,6 +34,11 @@ html.checkout-lock {
 
 .co-panel {
   cursor: auto;
+}
+
+/* focus holder while a step change swaps the controls */
+.co-panel:focus {
+  outline: none;
 }
 
 /* Static product image when there is no WebGL */
@@ -64,6 +70,18 @@ html.checkout-lock {
   background:
     linear-gradient(90deg, rgba(8, 2, 2, 0.92) 0%, rgba(8, 2, 2, 0.74) 24%, rgba(8, 2, 2, 0.28) 44%, rgba(8, 2, 2, 0) 60%),
     radial-gradient(130% 100% at 72% 48%, rgba(8, 2, 2, 0) 52%, rgba(6, 1, 1, 0.6) 100%);
+}
+
+/* Classic scrollbars: the locked page keeps its scrollbar gutter, so the scene fades
+   into the page colour at the right edge instead of ending in a hard vertical cut. */
+.checkout.has-gutter .co-scrim::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 56px;
+  background: linear-gradient(270deg, var(--bg), rgba(10, 2, 2, 0));
 }
 
 /* HUD caption in the free 3D area */
@@ -370,7 +388,7 @@ html.q-high .co-panel {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   padding: 24px 24px 28px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 200, 200, 0.18) transparent;
@@ -617,6 +635,32 @@ html.q-high .co-panel {
 
 .co-card--compact .co-card__meta {
   font-size: 12.5px;
+}
+
+/* payment: one-line rows, the description only under the chosen method (keeps the
+   order summary high up on the review step) */
+.co-choice--pay {
+  gap: 8px;
+}
+
+.co-choice--pay .co-card {
+  padding: 10px 14px;
+  gap: 12px;
+}
+
+.co-choice--pay .co-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.co-choice--pay .co-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.co-choice--pay .co-card:not(:has(.co-card__input:checked)) .co-card__meta {
+  display: none;
 }
 
 /* Quantity */
@@ -1083,8 +1127,23 @@ html.q-high .co-panel {
   pointer-events: none;
 }
 
+.co-spinner {
+  display: none;
+}
+
 .co-next.is-busy .btn__icon {
-  animation: co-spin 0.8s linear infinite;
+  display: none;
+}
+
+.co-next.is-busy .co-spinner {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #fff;
+  animation: co-spin 0.7s linear infinite;
 }
 
 .co-demo {
@@ -1095,8 +1154,65 @@ html.q-high .co-panel {
   color: var(--text-2);
 }
 
-.co-demo[hidden] {
+.co-demo[hidden],
+.co-shopline[hidden],
+.co-foot__row[hidden],
+.co-foot .co-field[hidden] {
   display: none;
+}
+
+/* inline text links (the shop link inside a sentence) */
+.co-inline.link {
+  display: inline;
+  font-size: inherit;
+}
+
+.co-inline.link svg {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 4px;
+  vertical-align: -1px;
+}
+
+/* the way to the real shop, on every form step */
+.co-shopline {
+  margin-top: 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--text-3a);
+}
+
+.co-shopline .link {
+  color: var(--text-2);
+}
+
+.co-shopline .link:hover {
+  color: var(--red);
+}
+
+/* privacy checkbox right above the order button */
+.co-foot .co-field--check {
+  margin: 0 0 12px;
+}
+
+.co-foot .co-check__txt {
+  font-size: 13px;
+  padding-top: 3px;
+}
+
+.co-foot .co-err {
+  margin: 4px 0 0 36px;
+}
+
+.co-foot__done {
+  flex-wrap: wrap;
+}
+
+.co-foot__done .btn {
+  flex: 1 1 auto;
+  padding: 0 20px;
 }
 
 .co-demo b {
@@ -1242,16 +1358,6 @@ html.q-high .co-panel {
   text-align: left;
 }
 
-.co-done__actions {
-  justify-content: center;
-  width: 100%;
-  margin-top: 18px;
-}
-
-.co-done__actions .btn {
-  flex: 1 1 200px;
-}
-
 .co-phone {
   display: inline-flex;
   align-items: center;
@@ -1274,8 +1380,9 @@ html.q-high .co-panel {
   color: var(--text);
 }
 
-/* Short landscape screens: tighter header */
-@media (max-height: 640px) and (min-width: 768px) {
+/* Short desktop / laptop viewports (1280 x 720, 1366 x 768 ...): tighter chrome, so the
+   review step shows the summary and the success step its actions without scrolling. */
+@media (max-height: 820px) and (min-width: 768px) {
   .co-head {
     padding-top: 12px;
   }
@@ -1284,12 +1391,117 @@ html.q-high .co-panel {
     margin-top: 8px;
   }
 
+  .co-title {
+    font-size: 24px;
+  }
+
+  .co-total__val {
+    font-size: 20px;
+  }
+
   .co-steps {
     margin-top: 10px;
   }
 
+  .co-steps__btn {
+    padding: 4px 0 7px;
+  }
+
   .co-body {
     padding-top: 16px;
+    padding-bottom: 18px;
+  }
+
+  .co-h {
+    margin-bottom: 14px;
+    font-size: 21px;
+  }
+
+  .co-lead {
+    margin-bottom: 14px;
+  }
+
+  .co-choice {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
+  .co-card {
+    padding: 13px 16px;
+  }
+
+  /* payment options as bare one-line rows (the legend stays for screen readers) */
+  .co-choice--pay .co-card {
+    padding: 8px 14px;
+  }
+
+  .co-choice--pay .co-card__meta {
+    display: none;
+  }
+
+  .co-choice--pay > .co-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* summary lines: quantity x unit price next to the label, not below it */
+  .co-summary .co-line dt small {
+    display: inline;
+    margin-left: 8px;
+  }
+
+  .co-summary {
+    padding: 12px 16px;
+  }
+
+  .co-line {
+    padding: 7px 0;
+  }
+
+  .co-foot {
+    padding: 12px 24px 14px;
+  }
+
+  .co-next.co-next--order {
+    --btn-h: 52px;
+  }
+
+  .co-done__seal {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 6px;
+  }
+
+  .co-done__h {
+    margin-top: 6px;
+    font-size: 38px;
+  }
+
+  .co-done__lead {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+
+  .co-demo--strong {
+    margin-top: 12px;
+  }
+
+  .co-done__sum {
+    margin-top: 12px;
+  }
+}
+
+@media (max-height: 640px) and (min-width: 768px) {
+  .co-steps__label {
+    display: none;
+  }
+
+  .co-incl {
+    display: none;
   }
 }
 
@@ -1500,14 +1712,57 @@ html.q-high .co-panel {
   }
 
   .co-done__seal {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 10px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+  }
+
+  .co-done {
+    padding-top: 0;
   }
 
   .co-done__h {
+    margin-top: 6px;
+    font-size: 34px;
+  }
+
+  .co-done__actions .btn,
+  .co-foot__done .btn {
+    --btn-h: 50px;
+    padding: 0 18px;
+  }
+
+  .co-shopline,
+  .co-foot .co-demo {
     margin-top: 8px;
-    font-size: 36px;
+    font-size: 12px;
+  }
+
+  .co-foot .co-field--check {
+    margin-bottom: 10px;
+  }
+
+  /* typing: the sheet takes the visible viewport above the on-screen keyboard */
+  .co-panel {
+    transition:
+      bottom 0.35s var(--ease-out),
+      height 0.35s var(--ease-out);
+  }
+
+  .checkout.is-typing .co-panel {
+    bottom: var(--kb, 0px);
+    height: calc(var(--vvh, 100svh) - max(8px, env(safe-area-inset-top)));
+    max-height: none;
+  }
+
+  .checkout.is-typing .co-hud,
+  .checkout.is-typing .co-steps,
+  .checkout.is-typing .co-shopline {
+    display: none;
+  }
+
+  .checkout.is-typing .co-bar {
+    margin-top: 10px;
   }
 
   .co-done__lead {

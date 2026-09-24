@@ -179,14 +179,22 @@ function spray(g, color, draw, px) {
 }
 
 // Stencil text with gaps ("bridges") cut through each glyph, like a real stencil.
-function stencilText(g, text, x, y, px, { font = DISPLAY, weight = 700, spacing = 0.06, align = 'left', color = '#141010', slant = 0, bridges = true } = {}) {
+// maxWidth (px): the text is set smaller if it would not fit (never clipped by the decal).
+function stencilText(g, text, x, y, px, { font = DISPLAY, weight = 700, spacing = 0.06, align = 'left', color = '#141010', slant = 0, bridges = true, maxWidth = 0 } = {}) {
   g.save();
-  g.font = `${weight} ${px}px ${font}`;
-  g.textBaseline = 'alphabetic';
   const chars = [...text];
+  const measure = () => {
+    g.font = `${weight} ${px}px ${font}`;
+    const w = chars.map((ch) => g.measureText(ch).width);
+    return [w, w.reduce((a, b) => a + b, 0) + px * spacing * (chars.length - 1) + px * slant * 0.8];
+  };
+  let [widths, total] = measure();
+  if (maxWidth && total > maxWidth) {
+    px *= maxWidth / total;
+    [widths, total] = measure();
+  }
+  g.textBaseline = 'alphabetic';
   const sp = px * spacing;
-  const widths = chars.map((ch) => g.measureText(ch).width);
-  const total = widths.reduce((a, b) => a + b, 0) + sp * (chars.length - 1);
   let cx = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
   const [lc, lg] = canvas(Math.ceil(total + px * 0.6), Math.ceil(px * 1.5));
   lg.font = g.font;
@@ -283,6 +291,35 @@ function umbrellaIcon(g, x, y, s, color) {
 // Pixel density of the stencil decals.
 const PPM = 760;
 
+// Soft contact shadow along the edges of a decal that sits between the crate battens:
+// the battens stand 22 mm proud of the plywood, so the board darkens where it meets them.
+function edgeShade(g, W, H, e) {
+  const col = (a) => `rgba(46, 30, 14, ${a})`;
+  const band = (x0, y0, x1, y1, rx, ry, rw, rh) => {
+    const gr = g.createLinearGradient(x0, y0, x1, y1);
+    gr.addColorStop(0, col(0.5));
+    gr.addColorStop(0.35, col(0.2));
+    gr.addColorStop(1, col(0));
+    g.fillStyle = gr;
+    g.fillRect(rx, ry, rw, rh);
+  };
+  g.save();
+  band(0, 0, 0, e, 0, 0, W, e);
+  band(0, H, 0, H - e, 0, H - e, W, e);
+  band(0, 0, e, 0, 0, 0, e, H);
+  band(W, 0, W - e, 0, W - e, 0, e, H);
+  g.restore();
+}
+
+// A decal that only carries the contact shade (wall halves without markings).
+export function shadeTexture(renderer, w, h) {
+  const W = Math.round(w * PPM * 0.5);
+  const H = Math.round(h * PPM * 0.5);
+  const [c, g] = canvas(W, H);
+  edgeShade(g, W, H, 0.03 * PPM * 0.5);
+  return finish(c, renderer);
+}
+
 // kind: 'front' | 'back' | 'side' | 'lid'. w, h: decal size in metres.
 export function stencilTexture(renderer, kind, w, h, { modelName = 'S5500-5DS', kw = '5,5' } = {}) {
   const W = Math.round(w * PPM);
@@ -291,30 +328,33 @@ export function stencilTexture(renderer, kind, w, h, { modelName = 'S5500-5DS', 
   const ink = '#161111';
   const red = '#b3201c';
   const m = (v) => v * PPM; // metres -> px
+  const fit = W - m(0.03); // widest text line: 15 mm margin on both sides
+  edgeShade(g, W, H, m(0.03));
 
   if (kind === 'front') {
     stencilText(g, 'HATGEN', m(0.05), m(0.21), m(0.15), { color: red, slant: SLANT, spacing: 0.02, bridges: false, weight: 800 });
-    stencilText(g, 'HEINZE AUTOMATISIERUNGSTECHNIK', m(0.055), m(0.285), m(0.034), { font: MONO, weight: 700, spacing: 0.08 });
-    stencilText(g, `${modelName} · ${kw} kW`, m(0.055), m(0.345), m(0.03), { font: MONO, weight: 600, spacing: 0.1 });
+    stencilText(g, 'HEINZE AUTOMATISIERUNGSTECHNIK', m(0.055), m(0.285), m(0.034), { font: MONO, weight: 700, spacing: 0.08, maxWidth: W - m(0.07) });
+    stencilText(g, `${modelName} · ${kw} kW`, m(0.055), m(0.345), m(0.03), { font: MONO, weight: 600, spacing: 0.1, maxWidth: W - m(0.07) });
     // handling marks bottom left
     arrowUp(g, m(0.09), m(0.58), m(0.075), ink);
     arrowUp(g, m(0.17), m(0.58), m(0.075), ink);
     stencilText(g, 'OBEN', m(0.235), m(0.61), m(0.05), { spacing: 0.1 });
     glassIcon(g, m(0.47), m(0.57), m(0.1), ink);
-    stencilText(g, 'VORSICHT', m(0.53), m(0.61), m(0.05), { spacing: 0.08 });
+    stencilText(g, 'VORSICHT', m(0.53), m(0.61), m(0.05), { spacing: 0.08, maxWidth: W - m(0.545) });
   } else if (kind === 'back') {
     stencilText(g, 'HATGEN', w * PPM * 0.5, m(0.2), m(0.12), { color: red, slant: SLANT, spacing: 0.02, align: 'center', bridges: false, weight: 800 });
-    stencilText(g, 'HEINZE AUTOMATISIERUNGSTECHNIK', w * PPM * 0.5, m(0.27), m(0.032), { font: MONO, spacing: 0.08, align: 'center' });
-    stencilText(g, '73577 RUPPERTSHOFEN', w * PPM * 0.5, m(0.32), m(0.028), { font: MONO, spacing: 0.12, align: 'center', weight: 600 });
+    stencilText(g, 'HEINZE AUTOMATISIERUNGSTECHNIK', w * PPM * 0.5, m(0.27), m(0.032), { font: MONO, spacing: 0.08, align: 'center', maxWidth: fit });
+    stencilText(g, '73577 RUPPERTSHOFEN', w * PPM * 0.5, m(0.32), m(0.028), { font: MONO, spacing: 0.12, align: 'center', weight: 600, maxWidth: fit });
     arrowUp(g, W * 0.5 - m(0.06), m(0.56), m(0.07), ink);
     arrowUp(g, W * 0.5 + m(0.06), m(0.56), m(0.07), ink);
   } else if (kind === 'side') {
-    arrowUp(g, W * 0.5 - m(0.065), m(0.17), m(0.08), ink);
-    arrowUp(g, W * 0.5 + m(0.065), m(0.17), m(0.08), ink);
-    stencilText(g, 'OBEN', W * 0.5, m(0.29), m(0.06), { align: 'center', spacing: 0.12 });
-    glassIcon(g, W * 0.5 - m(0.09), m(0.45), m(0.1), ink);
-    umbrellaIcon(g, W * 0.5 + m(0.09), m(0.46), m(0.1), ink);
-    stencilText(g, 'VORSICHT', W * 0.5, m(0.63), m(0.055), { align: 'center', spacing: 0.08 });
+    // the side decal is only ~0.24 m wide (between the frame and the middle batten)
+    arrowUp(g, W * 0.5 - m(0.05), m(0.17), m(0.066), ink);
+    arrowUp(g, W * 0.5 + m(0.05), m(0.17), m(0.066), ink);
+    stencilText(g, 'OBEN', W * 0.5, m(0.285), m(0.048), { align: 'center', spacing: 0.12, maxWidth: fit });
+    glassIcon(g, W * 0.5 - m(0.055), m(0.45), m(0.075), ink);
+    umbrellaIcon(g, W * 0.5 + m(0.055), m(0.46), m(0.075), ink);
+    stencilText(g, 'VORSICHT', W * 0.5, m(0.62), m(0.04), { align: 'center', spacing: 0.06, maxWidth: fit });
   } else if (kind === 'lid') {
     stencilText(g, 'HATGEN', W * 0.5, H * 0.5 + m(0.02), m(0.1), { color: red, slant: SLANT, align: 'center', bridges: false, weight: 800 });
     stencilText(g, 'OBEN', W * 0.5, H * 0.5 + m(0.1), m(0.04), { align: 'center', spacing: 0.14 });
@@ -364,7 +404,8 @@ export function labelTexture(renderer, { orderNo, name, city, modelName, qty }) 
   g.font = `600 20px ${MONO}`;
   g.fillStyle = '#f4f1ea';
   g.textAlign = 'right';
-  g.fillText('SPEDITION · 1 / 1', W - 24, 54);
+  // one pallet per unit: this crate is package 1 of the order
+  g.fillText(`SPEDITION · PACKSTÜCK 1 / ${Math.max(1, qty | 0)}`, W - 24, 54);
   g.textAlign = 'left';
 
   const label = (t, x, y) => {
@@ -414,7 +455,8 @@ export function labelTexture(renderer, { orderNo, name, city, modelName, qty }) 
 }
 
 // Text band of the pickup marker ring (repeats around the circle, red channel = mask).
-export function ringTextTexture(renderer) {
+export const RING_TEXT = 'ABHOLUNG · UTZSTETTER STR. 7/2 · 73577 RUPPERTSHOFEN · ';
+export function ringTextTexture(renderer, seg = RING_TEXT) {
   const W = 2048;
   const H = 64;
   const [c, g] = canvas(W, H);
@@ -423,7 +465,6 @@ export function ringTextTexture(renderer) {
   g.font = `600 30px ${MONO}`;
   g.fillStyle = '#fff';
   g.textBaseline = 'middle';
-  const seg = 'ABHOLUNG · UTZSTETTER STR. 7/2 · 73577 RUPPERTSHOFEN · ';
   const sw = g.measureText(seg).width;
   // stretch so a whole number of repeats fills the width (seamless)
   const n = Math.max(1, Math.round(W / sw));

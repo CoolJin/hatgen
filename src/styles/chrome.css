@@ -118,6 +118,13 @@ html.loader-failsafe #loader,
 .loader__mark--fill {
   fill: #e02d2a;
   clip-path: inset(-40% calc(100% - var(--p) * 100%) -40% -20%);
+}
+
+/* The glow sits on an unclipped wrapper: it is computed from the already clipped fill, so it
+   fades out softly at the progress edge instead of being cut off by the clip rectangle. */
+.loader__glow {
+  position: absolute;
+  inset: 0;
   filter: drop-shadow(0 0 calc(4px + var(--p) * 14px) rgba(255, 51, 51, calc(0.2 + var(--p) * 0.5)));
 }
 

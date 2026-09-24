@@ -120,6 +120,8 @@ export function initCheckout() {
 
   function lockScroll() {
     savedY = window.scrollY;
+    // classic scrollbar: its gutter stays reserved while locked (see .has-gutter)
+    root.classList.toggle('has-gutter', window.innerWidth - html.clientWidth > 0);
     const lenis = window.__lenis || get('scene')?.lenis;
     lenis?.stop();
     html.classList.add('checkout-lock');
@@ -409,8 +411,9 @@ export function initCheckout() {
 
   function syncViewport() {
     if (!vv) return;
+    // visible viewport height, and how much of the layout viewport the keyboard covers
     root.style.setProperty('--vvh', `${Math.round(vv.height)}px`);
-    root.style.setProperty('--vvt', `${Math.round(vv.offsetTop)}px`);
+    root.style.setProperty('--kb', `${Math.max(0, Math.round(root.clientHeight - vv.height - vv.offsetTop))}px`);
   }
   function setTyping(on) {
     if (on) syncViewport();
