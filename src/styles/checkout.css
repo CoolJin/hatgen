@@ -394,6 +394,8 @@ html.q-high .co-panel {
   scrollbar-color: rgba(255, 200, 200, 0.18) transparent;
   -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%);
   mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%);
+  /* focus scrolling (a tapped radio card, the next field) keeps clear of the fade masks */
+  scroll-padding: 28px 0 32px;
 }
 
 .co-step[hidden] {
@@ -541,12 +543,15 @@ html.q-high .co-panel {
 }
 
 .co-card__price--free {
+  padding: 3px 9px 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 90, 85, 0.5);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #9dffb9;
+  color: var(--pink);
 }
 
 .co-card__meta {
@@ -1010,25 +1015,63 @@ html.q-high .co-panel {
   margin-top: 2px;
 }
 
+.co-check__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .co-check,
 .co-field .co-check {
   position: relative;
   display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
   margin: 0;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   cursor: pointer;
 }
 
+/* the native input spans a 44 x 44 px target around the visible 24 px box */
 .co-check input {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 24px;
-  height: 24px;
+  left: -10px;
+  top: calc(50% - 22px);
+  width: 44px;
+  height: 44px;
   margin: 0;
   opacity: 0;
   cursor: pointer;
+}
+
+.co-check__link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 2px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 51, 51, 0.6);
+  text-underline-offset: 4px;
+  transition: color 0.25s;
+}
+
+.co-check__link:hover {
+  color: var(--red);
+}
+
+.co-check__link svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
 }
 
 .co-check__box {
@@ -1074,7 +1117,6 @@ html.q-high .co-panel {
 }
 
 .co-check__txt {
-  padding-top: 2px;
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-2);
@@ -1192,14 +1234,46 @@ html.q-high .co-panel {
   color: var(--red);
 }
 
-/* privacy checkbox right above the order button */
+/* total + privacy checkbox right above the order button */
+.co-foot__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 4px;
+}
+
+.co-foot__total[hidden] {
+  display: none;
+}
+
+.co-foot__total-k {
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+
+.co-foot__total-k small {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--text-3a);
+  white-space: nowrap;
+}
+
+.co-foot__total b {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .co-foot .co-field--check {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
 }
 
 .co-foot .co-check__txt {
   font-size: 13px;
-  padding-top: 3px;
 }
 
 .co-foot .co-err {
@@ -1230,9 +1304,9 @@ html.q-high .co-panel {
 }
 
 .co-done__seal {
-  width: 88px;
-  height: 88px;
-  margin-bottom: 10px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
   filter: drop-shadow(0 0 22px rgba(255, 51, 51, 0.55));
 }
 
@@ -1348,14 +1422,17 @@ html.q-high .co-panel {
 
 .co-demo--strong {
   width: 100%;
-  margin-top: 16px;
-  padding: 12px 14px;
+  padding: 10px 14px;
   border-radius: 12px;
-  border: 1px dashed rgba(255, 90, 85, 0.5);
-  background: rgba(255, 51, 51, 0.07);
-  font-size: 13.5px;
+  border: 1px dashed rgba(255, 90, 85, 0.55);
+  background: rgba(255, 51, 51, 0.08);
+  font-size: 13px;
   color: var(--text);
   text-align: left;
+}
+
+.co-foot .co-demo--done {
+  margin: 0 0 12px;
 }
 
 .co-phone {
@@ -1471,8 +1548,8 @@ html.q-high .co-panel {
   }
 
   .co-done__seal {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     margin-bottom: 6px;
   }
 
@@ -1484,10 +1561,6 @@ html.q-high .co-panel {
   .co-done__lead {
     margin-top: 8px;
     font-size: 15px;
-  }
-
-  .co-demo--strong {
-    margin-top: 12px;
   }
 
   .co-done__sum {
@@ -1547,13 +1620,24 @@ html.q-high .co-panel {
     font-size: 14px;
   }
 
+  /* sheet height per step (read by the 3D framing too): taller for the form and the
+     review, where the product only sits small and calm above it */
+  .checkout {
+    --sheet: 62;
+  }
+
+  .checkout[data-step='2'],
+  .checkout[data-step='3'] {
+    --sheet: 70;
+  }
+
   .co-panel {
     left: 0;
     right: 0;
     top: auto;
     bottom: 0;
     width: auto;
-    height: 62svh;
+    height: calc(var(--sheet) * 1svh);
     max-height: calc(100svh - 120px);
     border-radius: 24px 24px 0 0;
     border-bottom: 0;
@@ -1711,10 +1795,9 @@ html.q-high .co-panel {
     padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
   }
 
+  /* success on phones: the order number and the demo note first, no seal */
   .co-done__seal {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 6px;
+    display: none;
   }
 
   .co-done {
@@ -1746,7 +1829,7 @@ html.q-high .co-panel {
   .co-panel {
     transition:
       bottom 0.35s var(--ease-out),
-      height 0.35s var(--ease-out);
+      height 0.6s var(--ease-out);
   }
 
   .checkout.is-typing .co-panel {
@@ -1770,12 +1853,32 @@ html.q-high .co-panel {
     font-size: 15px;
   }
 
-  .co-demo--strong {
-    margin-top: 12px;
+  .co-foot .co-demo--done {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  /* review: payment options as one-line rows, the total sits in the footer */
+  .co-choice--pay .co-card {
+    padding: 8px 12px;
+  }
+
+  .co-choice--pay .co-card__meta {
+    display: none;
+  }
+
+  .co-foot__total b {
+    font-size: 20px;
+  }
+
+  .co-foot__total-k small {
+    display: block;
+    margin: 1px 0 0;
   }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 430px) {
   .co-card {
     padding: 14px 14px;
     gap: 12px;

@@ -1,6 +1,6 @@
 // Touch and scroll feel effects (see SPEC2, "FX agent").
 //   finger.js      electric finger FX on a fixed overlay canvas (touch and pen)
-//   swipe.js       horizontal swipe turns the generator (overrides.rotY), inertia, spring back
+//   swipe.js       horizontal swipe turns the generator (overrides.rotY), inertia, gentle return
 //   scrollfeel.js  scroll velocity -> camera warp / tilt / glow-up + red edge "speed glow"
 //   haptics.js     short vibration ticks on scene steps and model changes (Android)
 //   hint.js        one-time "Wischen zum Drehen" hint in the hero on phones
@@ -12,7 +12,7 @@ import { coarsePointer } from '../core/env.js';
 import { createLoop } from './loop.js';
 import { createInput } from './input.js';
 import { createFinger } from './finger.js';
-import { createSwipe } from './swipe.js';
+import { createSwipe, rimDimFor } from './swipe.js';
 import { createScrollFeel } from './scrollfeel.js';
 import { createHaptics } from './haptics.js';
 import { createHint } from './hint.js';
@@ -48,18 +48,55 @@ export function initFx() {
   // Something covers the page (checkout, mobile menu): no finger FX, no new swipes.
   const modal = () => takenOver() || html.classList.contains('menu-open');
 
+  // Fingers on the glass, and when the last one lifted (a fling keeps scrolling after that).
+  const down = new Set();
+  let lastUp = -1e9;
+  const FLING_MS = 2000;
+  const fingerScroll = () => down.size > 0 || performance.now() - lastUp < FLING_MS;
+
   const finger = createFinger({ loop, enabled: () => !modal() });
   const hint = createHint({ getScene, suspended: modal });
-  const swipe = createSwipe({ loop, getScene, blocked: modal, onFirstUse: () => hint.used() });
+  const swipe = createSwipe({
+    loop,
+    getScene,
+    blocked: modal,
+    onFirstUse: () => hint.used(),
+    // the drag turns the product from here on: the full touch show at the finger
+    onLock: (id, x, y) => finger?.lock(id, x, y),
+  });
   const feel = createScrollFeel({ loop, getScene, suspended: takenOver, isTouch });
-  const haptics = createHaptics({ getScene, isTouch });
+  const haptics = createHaptics({
+    getScene,
+    isTouch,
+    fingerScroll,
+    speed: () => (feel ? Math.abs(feel.v) / (window.innerHeight || 1) : 0), // viewport heights / s
+  });
 
+  // overrides.rimBoost has two writers: the scroll feel's glow-up and the swipe's rim dim (a
+  // turned face would mirror the red rims). Summed and written once per frame; only removed
+  // while it still holds our own value (hand-over safe).
   let taken = false;
+  let rimWritten = null;
+  function applyRim() {
+    const o = scene?.director?.overrides;
+    if (!o) return;
+    const v = taken ? 0 : (feel?.rim || 0) + swipe.rim;
+    if (Math.abs(v) < 1e-4) {
+      if (rimWritten !== null && o.rimBoost === rimWritten) delete o.rimBoost;
+      rimWritten = null;
+      return;
+    }
+    const r = Math.round(Math.max(-0.9, v) * 10000) / 10000;
+    o.rimBoost = r;
+    rimWritten = r;
+  }
+
   function syncTakeover() {
     const now = takenOver();
     if (now && !taken) {
       taken = true;
       swipe.handOver();
+      applyRim();
     } else if (!now && taken) {
       taken = false;
       feel?.resync();
@@ -69,22 +106,28 @@ export function initFx() {
   }
 
   createInput({
-    start(id, x, y, target, kind, count) {
+    start(id, x, y, target, kind, count, time) {
       touchMode = true;
+      if (count === 1) down.clear(); // a lost touchend never keeps a finger down
+      down.add(id);
       syncTakeover();
-      finger?.start(id, x, y, kind);
-      swipe.start(id, x, y, target, kind, count);
+      const sy = window.scrollY;
+      finger?.start(id, x, y, kind, time, sy);
+      swipe.start(id, x, y, target, kind, count, time);
     },
-    move(id, x, y, t) {
-      finger?.move(id, x, y, t);
-      swipe.move(id, x, y, t);
+    move(id, x, y, time) {
+      const sy = window.scrollY;
+      finger?.move(id, x, y, time, sy);
+      swipe.move(id, x, y, time, sy);
     },
-    end(id, x, y, cancelled) {
-      finger?.end(id, x, y, cancelled);
-      swipe.end(id);
+    end(id, x, y, cancelled, time) {
+      if (down.delete(id)) lastUp = performance.now();
+      finger?.end(id, x, y, cancelled, time);
+      swipe.end(id, x, y, cancelled, time);
     },
     nativeGesture() {
       swipe.nativeGesture();
+      finger?.native();
     },
     mouse() {
       touchMode = false;
@@ -100,6 +143,10 @@ export function initFx() {
   if (finger) loop.add(finger.update);
   loop.add(swipe.update);
   if (feel) loop.add(feel.update);
+  loop.add(() => {
+    applyRim(); // after the swipe and the scroll feel have updated their shares
+    return false;
+  });
 
   on('model', () => haptics.tick());
   on('checkout:open', () => {
@@ -129,12 +176,18 @@ export function initFx() {
         return {
           touch: touchMode,
           loop: loop.running,
-          swipe: { phase: swipe.phase, angle: r(swipe.angle) },
+          swipe: { phase: swipe.phase, angle: r(swipe.angle), close: swipe.close },
+          turning: html.classList.contains('fx-turning'),
           feel: feel?.state,
           hint: hint.state,
           o: { rotY: r(o.rotY), fovAdd: r(o.fovAdd), distAdd: r(o.distAdd), elAdd: r(o.elAdd), rimBoost: r(o.rimBoost), bloomBoost: r(o.bloomBoost) },
           canvas: !!finger?.canvas.classList.contains('is-on'),
         };
+      },
+      // rim dim the swipe would apply at this absolute rotation (harness sweeps)
+      rimDim: (rot) => {
+        const off = Math.abs(rot - Math.round(rot / (Math.PI * 2)) * Math.PI * 2);
+        return -rimDimFor(off, rot, scene?.director?.state?.az);
       },
     };
   }

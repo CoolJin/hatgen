@@ -30,6 +30,7 @@ export function initCheckout() {
   let animating = null;
   let lastFocus = null;
   let savedY = 0;
+  let restoreY = null; // scroll position to keep while history.back() settles
   let pushed = false;
   let inerted = [];
   let pageFade = null;
@@ -241,6 +242,9 @@ export function initCheckout() {
     if (!fromPop) {
       if (pushed && history.state?.checkout) {
         pushed = false;
+        // Going back lands on the previous entry; if that one has a fragment (e.g. #daten
+        // from a menu link), the browser jumps to that anchor. Keep the reading position.
+        restoreY = savedY;
         history.back();
       } else if (location.hash === HASH) {
         history.replaceState(history.state, '', location.pathname + location.search);
@@ -288,6 +292,11 @@ export function initCheckout() {
       first.focus();
     }
   });
+  // A mouse press on the free 3D area would move focus to <body> (no focusin fires for
+  // that): keep it on the current control. Pointer events (drag to turn) still arrive.
+  root.addEventListener('mousedown', (e) => {
+    if (isOpen && !panel.contains(e.target)) e.preventDefault();
+  });
   // focus must not escape (e.g. a click on the transparent 3D area)
   document.addEventListener('focusin', (e) => {
     if (isOpen && !root.contains(e.target)) root.querySelector('.co-close')?.focus({ preventScroll: true });
@@ -299,11 +308,29 @@ export function initCheckout() {
   });
 
   // ---------------------------------------------------------------- deep link + history
+  function keepPosition() {
+    if (restoreY === null) return;
+    const y = restoreY;
+    const put = () => {
+      if (isOpen || Math.abs(window.scrollY - y) <= 1) return;
+      const lenis = window.__lenis || get('scene')?.lenis;
+      if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
+      else window.scrollTo(0, y);
+    };
+    put();
+    requestAnimationFrame(put);
+    setTimeout(() => {
+      put();
+      restoreY = null;
+    }, 120);
+  }
   window.addEventListener('popstate', () => {
+    keepPosition();
     if (isOpen && location.hash !== HASH) close({ fromPop: true });
     else if (!isOpen && location.hash === HASH) whenReady(() => open({ fromHash: true }));
   });
   window.addEventListener('hashchange', () => {
+    keepPosition();
     if (!isOpen && location.hash === HASH) whenReady(() => open({ fromHash: true }));
   });
 

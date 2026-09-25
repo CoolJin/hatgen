@@ -1,16 +1,19 @@
-// One-time "Wischen zum Drehen" hint on phones, placed in the hero right under the product.
+// One-time "Wischen zum Drehen" hint on phones: a caption on the floor under the product in the
+// hero (no plate, so it never reads as a label stuck on the unit), centred under the product.
 // Appears once per page view after the intro, fades after the first swipe, after SHOW_MS, or
-// as soon as the visitor scrolls away. Nothing is stored on the device.
+// as soon as the visitor scrolls away. Nothing is stored on the device (not even a "seen"
+// flag in sessionStorage: storing on the device needs consent unless strictly necessary).
 import { isStacked, reducedMotion } from '../core/env.js';
 
 const DELAY_MS = 1900; // after the page is revealed (lets the hero entrance play first)
 const SHOW_MS = 5000;
 
-const ICON = `<svg class="fx-hint__icon" viewBox="0 0 48 32" aria-hidden="true" focusable="false">
-  <path class="fx-hint__arrow" d="M6 9h36M10 5 6 9l4 4M38 5l4 4-4 4"/>
+// Hand under a double arrow (kept apart, so it reads at 32 px), animated in fx.css.
+const ICON = `<svg class="fx-hint__icon" viewBox="0 0 48 36" aria-hidden="true" focusable="false">
+  <path class="fx-hint__arrow" d="M9 4h30M13 1 9 4l4 3M35 1l4 3-4 3"/>
   <g class="fx-hint__hand">
-    <path d="M21 30v-4.2l-4.6-5.3a2 2 0 0 1 2.9-2.7l2.7 2.6V9.6a2 2 0 0 1 4 0v6.2l6.7 1.1a2.6 2.6 0 0 1 2.2 2.9L34 30"/>
-    <circle class="fx-hint__tap" cx="23" cy="9.6" r="4.2"/>
+    <circle class="fx-hint__tap" cx="23" cy="15.6" r="4.2"/>
+    <path d="M21 35v-4.2l-4.6-5.3a2 2 0 0 1 2.9-2.7l2.7 2.6V15.6a2 2 0 0 1 4 0v6.2l6.7 1.1a2.6 2.6 0 0 1 2.2 2.9L34 35"/>
   </g>
 </svg>`;
 
@@ -25,30 +28,45 @@ export function createHint({ getScene, suspended }) {
     if (window.scrollY > window.innerHeight * 0.12) hide();
   }
 
-  function place(hero, scene) {
-    // just under the product: its floor point projected to the screen
+  function place() {
+    const hero = el?.parentNode;
+    const scene = getScene();
+    if (!hero || !scene) return;
     const heroTop = hero.getBoundingClientRect().top;
+    const h = el.offsetHeight;
     let top = hero.offsetHeight * 0.46;
+    let cx = window.innerWidth / 2;
     try {
-      // lowest of the four bottom corners of the housing (the front wheels reach furthest down)
+      // the four bottom corners of the housing: the lowest one is where the floor starts
+      // (the front wheels reach furthest down), the middle of them is the product's centre
       let low = -Infinity;
+      let x0 = Infinity;
+      let x1 = -Infinity;
       for (const x of [-0.475, 0.475]) {
         for (const z of [-0.275, 0.275]) {
           const p = scene.stage.project([x, 0, z]);
-          if (p && Number.isFinite(p.y) && !p.behind) low = Math.max(low, p.y);
+          if (!p || p.behind || !Number.isFinite(p.y) || !Number.isFinite(p.x)) continue;
+          low = Math.max(low, p.y);
+          x0 = Math.min(x0, p.x);
+          x1 = Math.max(x1, p.x);
         }
       }
-      if (low > 0) top = low - heroTop - 6; // over the wheel bottoms, on the floor
+      if (low > 0) top = low - heroTop + 7; // on the floor, just in front of the wheels
+      if (x1 > x0) cx = (x0 + x1) / 2;
     } catch {
       /* keep the fallback */
     }
-    // never on the hero copy
+    // never on the hero copy: where the floor strip under the wheels is too narrow (phones),
+    // the caption straddles the floor line, and moves up only as far as the copy demands
     const content = hero.querySelector('.hero__content');
     if (content) {
-      const limit = content.getBoundingClientRect().top - heroTop - el.offsetHeight - 12;
+      const limit = content.getBoundingClientRect().top - heroTop - h - 6;
       if (limit > 80) top = Math.min(top, limit);
     }
+    const half = el.offsetWidth / 2 + 16;
+    cx = Math.min(Math.max(cx, half), window.innerWidth - half);
     el.style.top = `${Math.round(top)}px`;
+    el.style.left = `${Math.round(cx)}px`;
   }
 
   function show() {
@@ -63,9 +81,12 @@ export function createHint({ getScene, suspended }) {
     el = document.createElement('div');
     el.className = 'fx-hint';
     el.setAttribute('aria-hidden', 'true');
-    el.innerHTML = `${ICON}<span class="fx-hint__label">Wischen zum Drehen</span>`;
+    // same wording and label style as the checkout's 3D caption
+    el.innerHTML = `${ICON}<span class="fx-hint__label">360° · Wischen zum Drehen</span>`;
     hero.appendChild(el);
-    place(hero, scene);
+    place();
+    window.addEventListener('resize', place, { passive: true });
+    window.visualViewport?.addEventListener('resize', place, { passive: true });
     // next frame: fade in
     requestAnimationFrame(() => requestAnimationFrame(() => el?.classList.add('is-in')));
     timer = setTimeout(hide, SHOW_MS);
@@ -81,6 +102,8 @@ export function createHint({ getScene, suspended }) {
     state = 'done';
     clearTimeout(timer);
     window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', place);
+    window.visualViewport?.removeEventListener('resize', place);
     const node = el;
     el = null;
     node.classList.remove('is-in');

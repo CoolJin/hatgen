@@ -38,7 +38,7 @@ export function createLoop() {
       tasks.push(fn);
     },
     wake,
-    // Wake the loop at a later time (e.g. the spring back after a pause) without spinning
+    // Wake the loop at a later time (e.g. the return after a pause) without spinning
     // empty frames until then. Only the earliest pending request is kept.
     wakeAt(time) {
       if (time >= timerAt && timer) return;

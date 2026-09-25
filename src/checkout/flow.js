@@ -52,7 +52,8 @@ const RULES = {
 export function totals(st) {
   const m = MODELS[st.model] || MODELS[DEFAULT_MODEL];
   const sub = m.price * st.qty;
-  const ship = st.delivery === 'versand' ? COMMON.shipping * st.qty : 0;
+  // shipping is a flat rate per order (as on the page: "Versand 118,00 €")
+  const ship = st.delivery === 'versand' ? COMMON.shipping : 0;
   const total = round2(sub + ship);
   const vat = round2((total * VAT) / (1 + VAT));
   return { model: m, sub, ship, total, vat };
@@ -73,6 +74,8 @@ export function createFlow(root, hooks = {}) {
   const privacyField = root.querySelector('.co-field[data-field="privacy"]');
   const shopLine = root.querySelector('.co-shopline');
   const demo = root.querySelector('#co-demo');
+  const demoDone = root.querySelector('.co-demo--done');
+  const footTotal = root.querySelector('.co-foot__total');
   const live = root.querySelector('[data-co-live]');
   const badge = root.querySelector('.co-total');
   const badgeVal = root.querySelector('.co-total__val');
@@ -173,7 +176,7 @@ export function createFlow(root, hooks = {}) {
     if (state.step === 0) set(root.classList.contains('has-3d') ? `360° · ${coarse ? 'Wischen' : 'Ziehen'} zum Drehen` : 'Ihre Auswahl', `${wordmark} ${esc(t.model.name)} · ${esc(t.model.kw)}${NB}kW`);
     else if (state.step === 1)
       state.delivery === 'versand'
-        ? set('Versand · Spedition', `${state.qty > 1 ? `${state.qty}${NB}Paletten · je 2 Spanngurte` : 'Palette · 2 Spanngurte'} · ca. ${COMMON.shippingDays}${NB}Werktage`)
+        ? set('Versand · Spedition', `Palette · 2 Spanngurte · ca. ${COMMON.shippingDays}${NB}Werktage`)
         : set('Abholung', `73577${NB}Ruppertshofen · Vorführung unter Last`);
     else if (state.step === 2) set('Ihre Daten', 'bleiben in Ihrem Browser');
     else if (state.step === 3) set('Prüfen', `Gesamt ${esc(fmtPrice(t.total))}`);
@@ -192,10 +195,13 @@ export function createFlow(root, hooks = {}) {
     lines.innerHTML =
       line(`${wordmark} ${esc(t.model.name)}`, `${state.qty}${NB}× ${unit}`, fmtPrice(t.sub)) +
       (state.delivery === 'versand'
-        ? line('Versand per Spedition', `${state.qty}${NB}× ${fmtPrice(COMMON.shipping)}`, fmtPrice(t.ship))
+        ? line('Versand per Spedition', 'pauschal', fmtPrice(t.ship))
         : line('Abholung in Ruppertshofen', 'ab Lager', 'kostenlos'));
     root.querySelector('[data-sum-total]').textContent = fmtPrice(t.total);
     root.querySelector('[data-sum-vat]').textContent = `darin enthalten 19${NB}% MwSt.: ${fmtPrice(t.vat)}`;
+    // the same total right above the order button (always in view, also on phones)
+    root.querySelector('[data-foot-total]').textContent = fmtPrice(t.total);
+    root.querySelector('[data-foot-vat]').textContent = `darin 19${NB}% MwSt. ${fmtPrice(t.vat)}`;
 
     const tr = (v) => String(v ?? '').trim();
     const name = [tr(d.firstName), tr(d.lastName)].filter(Boolean).join(' ');
@@ -245,8 +251,12 @@ export function createFlow(root, hooks = {}) {
     navRow.hidden = s === 4;
     doneRow.hidden = s !== 4;
     privacyField.hidden = s !== LAST_FORM_STEP;
+    footTotal.hidden = s !== LAST_FORM_STEP;
     shopLine.hidden = s >= LAST_FORM_STEP;
     demo.hidden = s !== LAST_FORM_STEP;
+    // the demo note stays in the fixed footer on the success step too: it must never be
+    // scrolled away or covered, whatever the layout and delivery mode
+    demoDone.hidden = s !== 4;
     nextLabel.textContent = s === LAST_FORM_STEP ? 'Zahlungspflichtig bestellen' : 'Weiter';
     next.classList.toggle('co-next--order', s === LAST_FORM_STEP);
     root.dataset.step = String(s);
@@ -391,7 +401,7 @@ export function createFlow(root, hooks = {}) {
       // nothing leaves the page: a short "processing" beat, then the finale
       busy = true;
       next.classList.add('is-busy');
-      nextLabel.textContent = 'Wird verpackt …';
+      nextLabel.textContent = state.delivery === 'versand' ? 'Wird verpackt …' : 'Wird vorbereitet …';
       const year = new Date().getFullYear();
       state.orderNo = `HAT-${year}-${String(1000 + Math.floor(Math.random() * 9000))}`;
       setTimeout(

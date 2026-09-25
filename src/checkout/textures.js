@@ -40,80 +40,208 @@ function finish(c, renderer, { srgb = true, repeat = false, mips = true } = {}) 
   return t;
 }
 
-// Wavy horizontal grain, a few knots, fine speckle. Neutral light wood; the meshes tint
-// it per board with vertex colours (pale birch plywood, warmer pine for the pallet).
+// Tileable wood grain: long-wavelength colour drift, a few broad low-contrast
+// "cathedral" figures (nested arches of flat-sawn timber), sparse straight grain of varying
+// length, pores and a fine speckle. Neutral light wood; the meshes tint it per board with
+// vertex colours (birch plywood, warmer pine for the pallet). The same map drives the bump
+// and roughness, so it is kept soft: no dense hairlines that would read as scanlines.
 export function woodTexture(renderer, size = 1024) {
   const W = size;
   const H = size / 2;
   const k = size / 1024;
   const [c, g] = canvas(W, H);
   const r = rng(7);
-  g.fillStyle = '#dccaa8';
+  g.fillStyle = '#d6c4a2';
   g.fillRect(0, 0, W, H);
 
-  // broad soft bands (early / late wood)
-  for (let i = 0; i < 22; i++) {
+  // draw something at x / y and at its wrapped copies (seamless tiling)
+  const wrapped = (x, y, rx, ry, fn) => {
+    for (const ox of [-W, 0, W]) {
+      if (x + ox + rx < 0 || x + ox - rx > W) continue;
+      for (const oy of [-H, 0, H]) {
+        if (y + oy + ry < 0 || y + oy - ry > H) continue;
+        fn(x + ox, y + oy);
+      }
+    }
+  };
+
+  // long-wavelength colour drift (big soft blobs, warm darker / paler)
+  for (let i = 0; i < 16; i++) {
+    const x = r() * W;
     const y = r() * H;
-    const h = (10 + r() * 36) * k;
-    const grad = g.createLinearGradient(0, y - h, 0, y + h);
-    const dark = r() < 0.5;
-    const a = 0.03 + r() * 0.06;
-    grad.addColorStop(0, 'rgba(0,0,0,0)');
-    grad.addColorStop(0.5, dark ? `rgba(130,96,60,${a})` : `rgba(255,244,222,${a})`);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = grad;
-    g.fillRect(0, y - h, W, 2 * h);
+    const rad = (0.25 + r() * 0.45) * H;
+    const dark = r() < 0.55;
+    const a = 0.035 + r() * 0.05;
+    wrapped(x, y, rad * 2.2, rad, (px, py) => {
+      g.save();
+      g.translate(px, py);
+      g.scale(2.2, 1);
+      const gr = g.createRadialGradient(0, 0, 0, 0, 0, rad);
+      gr.addColorStop(0, dark ? `rgba(120,84,48,${a})` : `rgba(255,246,226,${a})`);
+      gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr;
+      g.fillRect(-rad, -rad, rad * 2, rad * 2);
+      g.restore();
+    });
   }
 
-  // two small knots, stretched along the grain; the grain lines bend around them
+  // broad soft early / late wood bands along the grain
+  for (let i = 0; i < 14; i++) {
+    const y = r() * H;
+    const h = (14 + r() * 40) * k;
+    const dark = r() < 0.5;
+    const a = 0.025 + r() * 0.04;
+    wrapped(W / 2, y, W, h, (_, py) => {
+      const grad = g.createLinearGradient(0, py - h, 0, py + h);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(0.5, dark ? `rgba(128,92,56,${a})` : `rgba(255,244,222,${a})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, py - h, W, 2 * h);
+    });
+  }
+
+  // cathedral figures: nested arches opening along the grain, each growth ring a soft
+  // darker latewood line that runs out into straight grain
+  const figures = 4;
+  for (let f = 0; f < figures; f++) {
+    const cx = ((f + 0.15 + r() * 0.6) / figures) * W;
+    const cy = (0.12 + r() * 0.76) * H;
+    const rings = 7 + ((r() * 5) | 0);
+    const dx = (26 + r() * 22) * k; // apex spacing along the grain
+    const dy = (5 + r() * 3.5) * k; // ring spacing across the grain
+    const dir = r() < 0.5 ? 1 : -1; // which way the arches open
+    for (let j = 0; j < rings; j++) {
+      const ax = cx - dir * j * dx;
+      const cap = (j + 1) * dy;
+      const run = (140 + r() * 160) * k; // how far the ring runs out along the grain
+      const a = 0.05 + r() * 0.05;
+      const lw = (1.6 + r() * 2.6) * k;
+      const pts = [];
+      const n = 40;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const x = ax + dir * t * (run + cap * 6);
+        const off = Math.min(cap, cap * Math.sqrt(t * 3.2));
+        pts.push([x, off]);
+      }
+      wrapped(cx, cy, run + cap * 8 + rings * dx, cap + 4, (px, py) => {
+        const sx = px - cx;
+        const sy = py - cy;
+        g.strokeStyle = `rgba(118,82,46,${a})`;
+        g.lineWidth = lw;
+        g.lineCap = 'round';
+        g.beginPath();
+        for (let i = pts.length - 1; i >= 0; i--) g[i === pts.length - 1 ? 'moveTo' : 'lineTo'](pts[i][0] + sx, cy + sy - pts[i][1]);
+        for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0] + sx, cy + sy + pts[i][1]);
+        g.stroke();
+        // the latewood band just inside the ring: a faint darker fill
+        g.fillStyle = `rgba(150,110,66,${a * 0.12})`;
+        g.fill();
+      });
+    }
+  }
+
+  // two small knots, stretched along the grain
   const knots = [
-    { x: W * 0.28, y: H * 0.34, rx: 11 * k, ry: 4.5 * k },
-    { x: W * 0.74, y: H * 0.71, rx: 8 * k, ry: 3.5 * k },
+    { x: W * 0.28, y: H * 0.34, rx: 10 * k, ry: 4 * k },
+    { x: W * 0.74, y: H * 0.71, rx: 7 * k, ry: 3 * k },
   ];
 
-  // fine grain lines
-  for (let i = 0; i < 360; i++) {
+  // sparse straight grain: lines of varying length, very low contrast
+  for (let i = 0; i < 80; i++) {
     const y0 = r() * H;
-    const amp = (0.6 + r() * 2.4) * k;
-    const f = (0.002 + r() * 0.006) / k;
+    const x0 = r() * W;
+    const len = (0.15 + r() * 0.75) * W;
+    const amp = (0.6 + r() * 2.2) * k;
+    const f = ((1 + ((r() * 3) | 0)) * TAU_W) / W; // whole waves per tile: seamless
     const ph = r() * 6.28;
-    const a = 0.025 + r() * 0.07;
-    g.strokeStyle = `rgba(${105 + (r() * 30) | 0},${74 + (r() * 22) | 0},${44 + (r() * 16) | 0},${a})`;
-    g.lineWidth = (0.5 + r() * 1.4) * k;
-    g.beginPath();
-    for (let x = -10; x <= W + 10; x += 10 * k) {
-      let y = y0 + Math.sin(x * f + ph) * amp + Math.sin(x * f * 3.7 + ph * 2) * amp * 0.25;
-      for (const kn of knots) {
-        const dx = (x - kn.x) / (kn.rx * 4);
-        const dy = y - kn.y;
-        const inf = Math.exp(-dx * dx) * Math.exp(-(dy * dy) / (kn.ry * kn.ry * 26));
-        y += Math.sign(dy || 1) * inf * kn.ry * 2;
+    const a = 0.015 + r() * 0.025;
+    g.strokeStyle = `rgba(${100 + (r() * 30) | 0},${70 + (r() * 22) | 0},${42 + (r() * 16) | 0},${a})`;
+    g.lineWidth = (0.8 + r() * 1.6) * k;
+    g.lineCap = 'round';
+    for (const ox of [0, -W]) {
+      if (x0 + ox + len < 0) continue;
+      g.beginPath();
+      for (let x = x0; x <= x0 + len; x += 8 * k) {
+        let y = y0 + Math.sin(x * f + ph) * amp;
+        for (const kn of knots) {
+          const ddx = (x - kn.x) / (kn.rx * 4);
+          const ddy = y - kn.y;
+          const inf = Math.exp(-ddx * ddx) * Math.exp(-(ddy * ddy) / (kn.ry * kn.ry * 26));
+          y += Math.sign(ddy || 1) * inf * kn.ry * 2;
+        }
+        if (x === x0) g.moveTo(x + ox, y);
+        else g.lineTo(x + ox, y);
       }
-      if (x < 0) g.moveTo(x, y);
-      else g.lineTo(x, y);
+      g.stroke();
     }
-    g.stroke();
   }
   for (const kn of knots) {
     for (let j = 4; j >= 0; j--) {
-      g.fillStyle = `rgba(${96 - j * 5},${62 - j * 4},${34},${0.06 + (4 - j) * 0.06})`;
+      g.fillStyle = `rgba(${96 - j * 5},${62 - j * 4},${34},${0.05 + (4 - j) * 0.05})`;
       g.beginPath();
       g.ellipse(kn.x, kn.y, kn.rx * (0.3 + j * 0.2), kn.ry * (0.3 + j * 0.2), 0, 0, Math.PI * 2);
       g.fill();
     }
   }
 
-  // fine speckle / pores
+  // pores: short dark dashes along the grain
+  for (let i = 0; i < 520; i++) {
+    const x = r() * W;
+    const y = r() * H;
+    g.fillStyle = `rgba(90,60,34,${0.04 + r() * 0.06})`;
+    g.fillRect(x, y, (2 + r() * 9) * k, (0.8 + r() * 0.8) * k);
+  }
+
+  // fine speckle
   const img = g.getImageData(0, 0, W, H);
   const d = img.data;
   for (let i = 0; i < d.length; i += 4) {
-    const n = (r() - 0.5) * 12;
+    const n = (r() - 0.5) * 7;
     d[i] = Math.max(0, Math.min(255, d[i] + n));
     d[i + 1] = Math.max(0, Math.min(255, d[i + 1] + n * 0.92));
     d[i + 2] = Math.max(0, Math.min(255, d[i + 2] + n * 0.8));
   }
   g.putImageData(img, 0, 0);
   return finish(c, renderer, { repeat: true });
+}
+const TAU_W = Math.PI * 2;
+
+// Burnt-in stamp on the pallet blocks (heat treatment mark), dark brown on transparent.
+export function stampTexture(renderer) {
+  const W = 256;
+  const H = 180;
+  const [c, g] = canvas(W, H);
+  const ink = 'rgba(46, 26, 10, 0.9)';
+  g.save();
+  g.shadowColor = 'rgba(46, 26, 10, 0.8)';
+  g.shadowBlur = 5;
+  g.strokeStyle = ink;
+  g.fillStyle = ink;
+  g.lineWidth = 7;
+  g.beginPath();
+  if (g.roundRect) g.roundRect(14, 14, W - 28, H - 28, 16);
+  else g.rect(14, 14, W - 28, H - 28);
+  g.stroke();
+  g.lineWidth = 4;
+  g.beginPath();
+  g.moveTo(86, 22);
+  g.lineTo(86, H - 22);
+  g.stroke();
+  g.font = `800 58px ${DISPLAY}`;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText('HT', 50, H / 2 + 2);
+  g.font = `700 30px ${MONO}`;
+  g.fillText('DE-BW', 168, 62);
+  g.font = `600 26px ${MONO}`;
+  g.fillText('73577', 168, 104);
+  g.font = `600 17px ${MONO}`;
+  g.fillText('HEINZE', 168, 138);
+  g.restore();
+  wear(g, W, H, 5, 0.5);
+  return finish(c, renderer);
 }
 
 // Woven polyester strap (grayscale; the material colours it).
@@ -348,13 +476,16 @@ export function stencilTexture(renderer, kind, w, h, { modelName = 'S5500-5DS', 
     arrowUp(g, W * 0.5 - m(0.06), m(0.56), m(0.07), ink);
     arrowUp(g, W * 0.5 + m(0.06), m(0.56), m(0.07), ink);
   } else if (kind === 'side') {
-    // the side decal is only ~0.24 m wide (between the frame and the middle batten)
-    arrowUp(g, W * 0.5 - m(0.05), m(0.17), m(0.066), ink);
-    arrowUp(g, W * 0.5 + m(0.05), m(0.17), m(0.066), ink);
-    stencilText(g, 'OBEN', W * 0.5, m(0.285), m(0.048), { align: 'center', spacing: 0.12, maxWidth: fit });
-    glassIcon(g, W * 0.5 - m(0.055), m(0.45), m(0.075), ink);
-    umbrellaIcon(g, W * 0.5 + m(0.055), m(0.46), m(0.075), ink);
-    stencilText(g, 'VORSICHT', W * 0.5, m(0.62), m(0.04), { align: 'center', spacing: 0.06, maxWidth: fit });
+    // The side decal is only ~0.24 m wide (between the frame and the middle batten), and
+    // the 22 mm battens hide a strip next to them when the crate is seen at an angle: all
+    // markings stay in the middle ~60 % of the field.
+    const inner = W * 0.6;
+    arrowUp(g, W * 0.5 - m(0.036), m(0.17), m(0.055), ink);
+    arrowUp(g, W * 0.5 + m(0.036), m(0.17), m(0.055), ink);
+    stencilText(g, 'OBEN', W * 0.5, m(0.275), m(0.036), { align: 'center', spacing: 0.12, maxWidth: inner });
+    glassIcon(g, W * 0.5 - m(0.036), m(0.44), m(0.055), ink);
+    umbrellaIcon(g, W * 0.5 + m(0.036), m(0.45), m(0.055), ink);
+    stencilText(g, 'VORSICHT', W * 0.5, m(0.585), m(0.026), { align: 'center', spacing: 0.06, maxWidth: inner });
   } else if (kind === 'lid') {
     stencilText(g, 'HATGEN', W * 0.5, H * 0.5 + m(0.02), m(0.1), { color: red, slant: SLANT, align: 'center', bridges: false, weight: 800 });
     stencilText(g, 'OBEN', W * 0.5, H * 0.5 + m(0.1), m(0.04), { align: 'center', spacing: 0.14 });
@@ -380,7 +511,7 @@ function barcode(g, x, y, w, h, seedStr) {
 }
 
 // The shipping label (paper, ~0.26 × 0.18 m).
-export function labelTexture(renderer, { orderNo, name, city, modelName, qty }) {
+export function labelTexture(renderer, { orderNo, name, city, modelName, qty, weight = 175 }) {
   const W = 780;
   const H = 540;
   const [c, g] = canvas(W, H);
@@ -404,8 +535,7 @@ export function labelTexture(renderer, { orderNo, name, city, modelName, qty }) 
   g.font = `600 20px ${MONO}`;
   g.fillStyle = '#f4f1ea';
   g.textAlign = 'right';
-  // one pallet per unit: this crate is package 1 of the order
-  g.fillText(`SPEDITION · PACKSTÜCK 1 / ${Math.max(1, qty | 0)}`, W - 24, 54);
+  g.fillText(`SPEDITION · ${Math.round(weight).toLocaleString('de-DE')} KG`, W - 24, 54);
   g.textAlign = 'left';
 
   const label = (t, x, y) => {

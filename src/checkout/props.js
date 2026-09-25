@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { woodTexture, strapTexture, stencilTexture, shadeTexture, labelTexture, ringTextTexture, RING_TEXT, rng } from './textures.js';
+import { woodTexture, strapTexture, stencilTexture, shadeTexture, labelTexture, ringTextTexture, stampTexture, RING_TEXT, rng } from './textures.js';
 
 // Pallet (x = length, z = depth), metres.
 export const PALLET = { l: 1.14, d: 0.78, h: 0.144 };
@@ -19,10 +19,14 @@ export const CRATE = { x: 0.55, z: 0.37, h: 0.92, t: 0.018, bw: 0.075, bt: 0.022
 export const BASE_T = CRATE.t;
 // Where the generator hovers while the pallet rises or sinks below it.
 export const HOVER = 0.3;
-// Strap positions along x and the anchor points on the deck (z).
+// Strap positions along x; the straps end in J-hooks bent under the deck edge (z).
 const STRAP_X = [-0.36, 0.2];
 const STRAP_W = 0.036;
-const ANCHOR_Z = 0.33;
+const STRAP_T = 0.0016; // webbing thickness
+const DECK_EDGE = PALLET.d / 2; // 0.39
+const ANCHOR_Z = DECK_EDGE - 0.008;
+const ANCHOR_Y = 0.028; // strap end above the deck (the hook takes it from there)
+const CRATE_ANCHOR_Z = 0.33; // D-rings on the crate floor, inside the walls
 const GEN_H = 0.8;
 const GEN_Z = 0.276;
 
@@ -36,7 +40,8 @@ const ONE = new THREE.Vector3(1, 1, 1);
 // ------------------------------------------------------------------ geometry helpers
 // A rounded board, built with its length along x so the projected UVs run the grain along
 // the board, then rotated / moved into place. Carries a per-board tint (vertex colour).
-function board(w, h, d, { pos = [0, 0, 0], rot = [0, 0, 0], tint, r = 0.003, seg = 2, rand }) {
+// The cut ends (faces along the length) are end grain: darker, without long grain.
+function board(w, h, d, { pos = [0, 0, 0], rot = [0, 0, 0], tint, r = 0.003, seg = 2, rand, end = 0.68 }) {
   const rr = Math.max(0.0005, Math.min(r, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4));
   const g = new RoundedBoxGeometry(w, h, d, seg, rr);
   const p = g.attributes.position;
@@ -44,6 +49,7 @@ function board(w, h, d, { pos = [0, 0, 0], rot = [0, 0, 0], tint, r = 0.003, seg
   const uv = g.attributes.uv;
   const ou = rand();
   const ov = rand();
+  const isEnd = new Uint8Array(p.count);
   for (let i = 0; i < p.count; i++) {
     const ax = Math.abs(n.getX(i));
     const ay = Math.abs(n.getY(i));
@@ -51,8 +57,10 @@ function board(w, h, d, { pos = [0, 0, 0], rot = [0, 0, 0], tint, r = 0.003, seg
     let u;
     let v;
     if (ax >= ay && ax >= az) {
-      u = p.getZ(i);
-      v = p.getY(i);
+      // end grain: the grain texture squeezed to a near-flat patch
+      u = p.getZ(i) * 0.1;
+      v = p.getY(i) * 0.1;
+      isEnd[i] = 1;
     } else if (ay >= az) {
       u = p.getX(i);
       v = p.getZ(i);
@@ -65,16 +73,40 @@ function board(w, h, d, { pos = [0, 0, 0], rot = [0, 0, 0], tint, r = 0.003, seg
   const col = new Float32Array(p.count * 3);
   const k = 0.9 + rand() * 0.16;
   for (let i = 0; i < p.count; i++) {
-    col[i * 3] = tint.r * k;
-    col[i * 3 + 1] = tint.g * k;
-    col[i * 3 + 2] = tint.b * k;
+    const e = isEnd[i] ? end : 1;
+    col[i * 3] = tint.r * k * e;
+    col[i * 3 + 1] = tint.g * k * e;
+    col[i * 3 + 2] = tint.b * k * e;
   }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.setAttribute('aSteel', new THREE.BufferAttribute(new Float32Array(p.count), 1));
   tmpE.set(rot[0], rot[1], rot[2]);
   tmpQ.setFromEuler(tmpE);
   tmpM.compose(tmpV.set(pos[0], pos[1], pos[2]), tmpQ, ONE);
   g.applyMatrix4(tmpM);
   return g;
+}
+
+// A small steel part (nail head, bracket) merged into a wooden mesh: the wood shader
+// renders vertices with aSteel = 1 as zinc-plated steel (no extra draw call).
+function steelPart(geo, pos = [0, 0, 0], rot = [0, 0, 0]) {
+  const g = geo.index ? geo.toNonIndexed() : geo;
+  if (g !== geo) geo.dispose();
+  const n = g.attributes.position.count;
+  g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * 3).fill(1), 3));
+  g.setAttribute('aSteel', new THREE.BufferAttribute(new Float32Array(n).fill(1), 1));
+  tmpE.set(rot[0], rot[1], rot[2]);
+  tmpQ.setFromEuler(tmpE);
+  tmpM.compose(tmpV.set(pos[0], pos[1], pos[2]), tmpQ, ONE);
+  g.applyMatrix4(tmpM);
+  return g;
+}
+
+// Nail / screw head facing +z (or along `axis`) at p.
+function nailHead(p, axis = 'z', r = 0.0034) {
+  const c = new THREE.CylinderGeometry(r * 0.82, r, 0.0016, 7, 1);
+  if (axis === 'z') c.rotateX(Math.PI / 2);
+  return steelPart(c, p);
 }
 
 // Polyline through the corners with round fillets (radius r) at the inner corners.
@@ -103,41 +135,60 @@ function filleted(pts, r, steps = 5) {
   return out;
 }
 
-// Flat ribbon along a path in the y/z plane at x, width along x. aAlong: 0..1 along the
-// whole strap (for the draw-on), uv.v in strap widths (texture repeat).
-function ribbon(path, x, width, total, startLen) {
+// Strap webbing along a path in the y/z plane at x: a thin band (width along x, thickness
+// along the path normal) with outer / inner faces and both edges. aAlong: 0..1 along the
+// whole strap (for the draw-on), uv.v in strap widths (weave repeat).
+function strapBand(path, x, width, thick, total) {
   const n = path.length;
-  const pos = new Float32Array(n * 2 * 3);
-  const nor = new Float32Array(n * 2 * 3);
-  const uv = new Float32Array(n * 2 * 2);
-  const along = new Float32Array(n * 2);
-  const idx = [];
-  let len = startLen;
   const T = new THREE.Vector3();
+  const N = [];
+  const L = [];
+  let len = 0;
   for (let i = 0; i < n; i++) {
     if (i > 0) len += path[i].distanceTo(path[i - 1]);
+    L.push(len);
     const a = path[Math.max(0, i - 1)];
     const b = path[Math.min(n - 1, i + 1)];
     T.subVectors(b, a).normalize();
-    // outward normal = X × T
-    const ny = -T.z;
-    const nz = T.y;
-    for (let s = 0; s < 2; s++) {
-      const j = i * 2 + s;
-      pos[j * 3] = x + (s ? width / 2 : -width / 2);
-      pos[j * 3 + 1] = path[i].y;
-      pos[j * 3 + 2] = path[i].z;
-      nor[j * 3] = 0;
-      nor[j * 3 + 1] = ny;
-      nor[j * 3 + 2] = nz;
-      uv[j * 2] = s;
-      uv[j * 2 + 1] = len / width;
-      along[j] = len / total;
+    N.push([-T.z, T.y]); // outward normal = X × T (y, z)
+  }
+  const hw = width / 2;
+  const ht = thick / 2;
+  // rails: [dx, dn] of both long edges of each face, its normal and its u range
+  const faces = [
+    [[-hw, ht], [hw, ht], 'n', [0, 1]],
+    [[hw, -ht], [-hw, -ht], '-n', [1, 0]],
+    [[-hw, -ht], [-hw, ht], '-x', [0, 0.04]],
+    [[hw, ht], [hw, -ht], '+x', [0.96, 1]],
+  ];
+  const vc = faces.length * n * 2;
+  const pos = new Float32Array(vc * 3);
+  const nor = new Float32Array(vc * 3);
+  const uv = new Float32Array(vc * 2);
+  const along = new Float32Array(vc);
+  const idx = [];
+  let base = 0;
+  for (const [r0, r1, nk, us] of faces) {
+    for (let i = 0; i < n; i++) {
+      const [ny, nz] = N[i];
+      for (let s = 0; s < 2; s++) {
+        const [dx, dn] = s ? r1 : r0;
+        const j = base + i * 2 + s;
+        pos[j * 3] = x + dx;
+        pos[j * 3 + 1] = path[i].y + ny * dn;
+        pos[j * 3 + 2] = path[i].z + nz * dn;
+        const nv = nk === 'n' ? [0, ny, nz] : nk === '-n' ? [0, -ny, -nz] : nk === '-x' ? [-1, 0, 0] : [1, 0, 0];
+        nor.set(nv, j * 3);
+        uv[j * 2] = us[s];
+        uv[j * 2 + 1] = L[i] / width;
+        along[j] = L[i] / total;
+      }
+      if (i < n - 1) {
+        const a0 = base + i * 2;
+        idx.push(a0, a0 + 1, a0 + 2, a0 + 1, a0 + 3, a0 + 2);
+      }
     }
-    if (i < n - 1) {
-      const a0 = i * 2;
-      idx.push(a0, a0 + 1, a0 + 2, a0 + 1, a0 + 3, a0 + 2);
-    }
+    base += n * 2;
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -145,6 +196,25 @@ function ribbon(path, x, width, total, startLen) {
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   g.setAttribute('aAlong', new THREE.BufferAttribute(along, 1));
   g.setIndex(idx);
+  return g;
+}
+
+// Toothed ratchet wheel, axis along x.
+function gearGeometry(teeth, ro, ri, depth) {
+  const sh = new THREE.Shape();
+  for (let i = 0; i < teeth; i++) {
+    const a0 = (i / teeth) * Math.PI * 2;
+    const a1 = ((i + 0.55) / teeth) * Math.PI * 2;
+    const a2 = ((i + 1) / teeth) * Math.PI * 2;
+    // ratchet tooth: straight flank up, slope down
+    if (i === 0) sh.moveTo(Math.cos(a0) * ri, Math.sin(a0) * ri);
+    sh.lineTo(Math.cos(a0) * ro, Math.sin(a0) * ro);
+    sh.lineTo(Math.cos(a1) * ro * 0.97, Math.sin(a1) * ro * 0.97);
+    sh.lineTo(Math.cos(a2) * ri, Math.sin(a2) * ri);
+  }
+  const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false, curveSegments: 1 });
+  g.translate(0, 0, -depth / 2);
+  g.rotateY(Math.PI / 2);
   return g;
 }
 
@@ -156,28 +226,35 @@ function pathLength(path) {
 
 // ------------------------------------------------------------------ materials
 function woodMaterial(tex, U) {
-  // roughness varies with the grain (texture green channel ~0.45..0.62 linear), so the
-  // boards do not read as one uniform plastic sheen
+  // roughness varies with the grain (texture green channel ~0.5..0.6 linear): about 0.75
+  // on average, so the boards stay matte and the red rim light shapes their edges
   const m = new THREE.MeshStandardMaterial({
     map: tex,
     bumpMap: tex,
-    bumpScale: 0.9,
+    bumpScale: 0.3,
     roughnessMap: tex,
-    roughness: 1.45,
+    roughness: 1.34,
     metalness: 0,
     vertexColors: true,
   });
   m.name = 'checkout:wood';
   // Clipped at the floor (the pallet rises out of / sinks into it) with a thin red glowing
   // seam at the cut while it moves.
+  // Nails and brackets are merged into the boards (aSteel = 1): zinc steel, no grain bump.
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uClipGlow = U.clipGlow;
     sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying float vCoY;')
+      .replace('#include <common>', '#include <common>\nvarying float vCoY;\nattribute float aSteel;\nvarying float vSteel;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n  vSteel = aSteel;')
       .replace('#include <project_vertex>', '#include <project_vertex>\n  vCoY = (modelMatrix * vec4(transformed, 1.0)).y;');
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying float vCoY;\nuniform float uClipGlow;')
+      .replace('#include <common>', '#include <common>\nvarying float vCoY;\nvarying float vSteel;\nuniform float uClipGlow;')
       .replace('void main() {', 'void main() {\n  if (vCoY < -0.0004) discard;')
+      .replace(
+        '#include <metalnessmap_fragment>',
+        '#include <metalnessmap_fragment>\n  if (vSteel > 0.5) { diffuseColor.rgb = vec3(0.62, 0.62, 0.61); metalnessFactor = 0.6; roughnessFactor = 0.44; }'
+      )
+      .replace('#include <normal_fragment_maps>', 'vec3 coN0 = normal;\n#include <normal_fragment_maps>\n  if (vSteel > 0.5) normal = coN0;')
       .replace(
         '#include <emissivemap_fragment>',
         '#include <emissivemap_fragment>\n  totalEmissiveRadiance += vec3(1.0, 0.16, 0.12) * 4.0 * uClipGlow * (1.0 - smoothstep(0.0, 0.01, vCoY));'
@@ -189,9 +266,12 @@ function woodMaterial(tex, U) {
 
 function strapMaterial(tex, U) {
   const m = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#d6361f'),
+    color: new THREE.Color('#b8302a'),
     map: tex,
-    roughness: 0.66,
+    bumpMap: tex,
+    bumpScale: 0.6,
+    roughnessMap: tex,
+    roughness: 0.95,
     metalness: 0,
     side: THREE.DoubleSide,
     polygonOffset: true,
@@ -260,18 +340,21 @@ void main() {
   }
   // dashed outer ring
   c += line(r - R1, 0.0022) * step(0.45, fract(u * 160.0 - uTime * 0.05)) * 0.8;
-  // soft inner glow and expanding pulse waves
-  c += smoothstep(0.35, R0, r) * step(r, R0) * 0.12;
+  // faint inner glow (keeps the contact shadow readable) and expanding pulse waves
+  c += smoothstep(0.35, R0, r) * step(r, R0) * 0.03;
   float w1 = fract(uTime * 0.42);
   float w2 = fract(uTime * 0.42 + 0.5);
   float rr1 = mix(0.5, 1.25, w1);
   float rr2 = mix(0.5, 1.25, w2);
   c += (exp(-pow((r - rr1) * 28.0, 2.0)) * (1.0 - w1) + exp(-pow((r - rr2) * 28.0, 2.0)) * (1.0 - w2)) * (0.35 + uPulse * 1.4);
-  // one strong shockwave (engine start)
-  float sr = mix(0.55, 1.28, uShock);
-  c += exp(-pow((r - sr) * 16.0, 2.0)) * (1.0 - uShock) * step(0.001, uShock) * 3.0;
   float fade = 1.0 - smoothstep(1.05, 1.3, r);
-  vec3 col = vec3(1.0, 0.13, 0.1) * c * fade * uAmount * (0.72 + uPulse * 0.9);
+  vec3 col = vec3(1.0, 0.13, 0.1) * c * fade * uAmount * (0.5 + uPulse);
+  // one strong shockwave (engine start): a wide red front with a white-hot core
+  float sk = step(0.001, uShock) * (1.0 - uShock);
+  float sr = mix(0.5, 1.3, uShock);
+  float band = exp(-pow((r - sr) * 13.0, 2.0)) * sk;
+  float core = exp(-pow((r - sr) * 46.0, 2.0)) * sk;
+  col += (vec3(1.0, 0.15, 0.1) * band * 9.0 + vec3(1.0, 0.82, 0.62) * core * 5.0) * (1.0 - smoothstep(1.12, 1.32, r)) * uAmount;
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -372,6 +455,20 @@ function additive(m) {
   return m;
 }
 
+// Discards fragments below the floor (the pallet rises out of / sinks into it).
+function clipAtFloor(m, key) {
+  m.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying float vCoY;')
+      .replace('#include <project_vertex>', '#include <project_vertex>\n  vCoY = (modelMatrix * vec4(transformed, 1.0)).y;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vCoY;')
+      .replace('void main() {', 'void main() {\n  if (vCoY < -0.0004) discard;');
+  };
+  m.customProgramCacheKey = () => key;
+  return m;
+}
+
 function noShadowBake(o) {
   o.castShadow = false;
   o.receiveShadow = false;
@@ -391,19 +488,22 @@ export function createProps({ stage, quality = 'high' }) {
 
   const root = new THREE.Group();
   root.name = 'checkout:props';
+  const decalMatsEarly = [];
 
   const woodTex = woodTexture(renderer, quality === 'low' ? 512 : 1024);
   const wood = woodMaterial(woodTex, U);
-  const steel = new THREE.MeshStandardMaterial({ color: new THREE.Color('#b9bdc2'), metalness: 1, roughness: 0.32 });
+  const steel = new THREE.MeshStandardMaterial({ color: new THREE.Color('#aeb3b9'), metalness: 1, roughness: 0.36 });
   steel.name = 'checkout:steel';
+  const blackGrip = new THREE.MeshStandardMaterial({ color: new THREE.Color('#161616'), metalness: 0, roughness: 0.52 });
+  blackGrip.name = 'checkout:grip';
 
-  // tints multiply the neutral grain texture (the warm key light adds the rest)
-  // (lower, less saturated than raw timber: next to the dark satin unit the boards must
-  // read as wood, not as a bright CG surface)
-  const pine = new THREE.Color('#cbb189');
-  const pineDark = new THREE.Color('#b39970');
-  const ply = new THREE.Color('#d8c6a6');
-  const plyEdge = new THREE.Color('#c7b08a');
+  // tints multiply the neutral grain texture (the warm key light adds the rest). Kept low
+  // and not too saturated: next to the dark satin unit the boards must read as timber,
+  // not as the brightest object on the stage.
+  const pine = new THREE.Color('#b09c78');
+  const pineDark = new THREE.Color('#9a8664');
+  const ply = new THREE.Color('#b6a68a');
+  const plyEdge = new THREE.Color('#a9987a');
 
   // ---------------------------------------------------------------- pallet
   const palletGroup = new THREE.Group();
@@ -420,12 +520,38 @@ export function createProps({ stage, quality = 'high' }) {
       }
     }
     for (const [z, w] of [[-0.33, 0.12], [0, 0.145], [0.33, 0.12]]) parts.push(board(P.l, 0.022, w, { pos: [0, 0.011, z], tint: pine, seg, rand }));
+    // nail heads where the deck boards sit on the stringers (two per crossing)
+    for (const [z, w] of topZ) {
+      for (const x of [-0.52, 0, 0.52]) for (const dx of [-0.026, 0.026]) parts.push(nailHead([x + dx, P.h + 0.0002, z + (dx > 0 ? w * 0.18 : -w * 0.18)], 'y', 0.0038));
+    }
     const geo = mergeGeometries(parts);
     parts.forEach((g) => g.dispose());
     const mesh = new THREE.Mesh(geo, wood);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     palletGroup.add(mesh);
+
+    // burnt-in stamp on the end grain of the three front blocks
+    const stamps = [-0.52, 0, 0.52].map((x) => new THREE.PlaneGeometry(0.084, 0.059).translate(x, 0.061, 0.33 + 0.06 + 0.0009));
+    const stampGeo = mergeGeometries(stamps);
+    stamps.forEach((g) => g.dispose());
+    const stampMat = new THREE.MeshStandardMaterial({
+      map: stampTexture(renderer),
+      transparent: true,
+      depthWrite: false,
+      roughness: 0.9,
+      metalness: 0,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -4,
+    });
+    clipAtFloor(stampMat, 'checkout-stamp');
+    decalMatsEarly.push(stampMat);
+    const stamp = new THREE.Mesh(stampGeo, stampMat);
+    stamp.renderOrder = 1;
+    noShadowBake(stamp);
+    stamp.receiveShadow = true;
+    palletGroup.add(stamp);
   }
   root.add(palletGroup);
 
@@ -437,8 +563,16 @@ export function createProps({ stage, quality = 'high' }) {
   straps.name = 'checkout:straps';
   const hardware = new THREE.Mesh(new THREE.BufferGeometry(), steel);
   noShadowBake(hardware);
+  hardware.name = 'checkout:ratchets';
+  const grips = new THREE.Mesh(new THREE.BufferGeometry(), blackGrip);
+  noShadowBake(grips);
+  grips.name = 'checkout:ratchet-grips';
   let buckleAlong = 0.15;
   let strapFloor = -1;
+  const basis = new THREE.Matrix4();
+  const vX = new THREE.Vector3(1, 0, 0);
+  const vT = new THREE.Vector3();
+  const vN = new THREE.Vector3();
 
   // floor: height of the surface the generator stands on (pallet deck or crate floor).
   function buildStraps(floor) {
@@ -446,52 +580,114 @@ export function createProps({ stage, quality = 'high' }) {
     strapFloor = floor;
     const top = floor + GEN_H + 0.007;
     const zf = GEN_Z + 0.006;
+    // On the pallet the straps hook under the deck edge; inside the crate they are lashed
+    // to D-rings on the crate floor (the walls close around them).
+    const inCrate = floor > PALLET.h + 0.001;
+    const az = inCrate ? CRATE_ANCHOR_Z : ANCHOR_Z;
+    const y0 = inCrate ? floor + 0.013 : PALLET.h + ANCHOR_Y;
     const corners = [
-      new THREE.Vector3(0, PALLET.h + 0.0015, ANCHOR_Z),
+      new THREE.Vector3(0, y0, az),
       new THREE.Vector3(0, top, zf),
       new THREE.Vector3(0, top, -zf),
-      new THREE.Vector3(0, PALLET.h + 0.0015, -ANCHOR_Z),
+      new THREE.Vector3(0, y0, -az),
     ];
     const path = filleted(corners, 0.018, 5);
     const total = pathLength(path);
-    const geos = STRAP_X.map((x) => ribbon(path, x, STRAP_W, total, 0));
-    const merged = mergeGeometries(geos);
-    geos.forEach((g) => g.dispose());
-    straps.geometry.dispose();
-    straps.geometry = merged;
 
-    // ratchets on the front run (about a third up), anchor plates at both ends
+    // ratchet about a third up the front run; local frame: x across, T up the strap,
+    // n away from the unit
     const a = corners[0];
     const b = corners[1];
     const segLen = a.distanceTo(b);
     const at = 0.3;
     buckleAlong = (segLen * at) / total;
     const pos = new THREE.Vector3().lerpVectors(a, b, at);
-    const tilt = Math.atan2(b.z - a.z, b.y - a.y); // lean of the front run
-    const hw = [];
-    const add = (g, p, rot) => {
-      tmpE.set(rot[0], rot[1], rot[2]);
-      tmpQ.setFromEuler(tmpE);
-      tmpM.compose(tmpV.set(p[0], p[1], p[2]), tmpQ, ONE);
-      g.applyMatrix4(tmpM);
-      hw.push(g);
+    vT.subVectors(b, a).normalize();
+    vN.crossVectors(vX, vT).normalize();
+
+    const geos = STRAP_X.map((x) => strapBand(path, x, STRAP_W, STRAP_T, total));
+    const steelParts = [];
+    const gripParts = [];
+    const local = (list, g, x, [lx, lt, ln], tilt = 0) => {
+      if (tilt) g.rotateX(tilt);
+      g.translate(lx, lt, ln);
+      basis.makeBasis(vX, vT, vN).setPosition(x + pos.x, pos.y, pos.z);
+      g.applyMatrix4(basis);
+      const out = g.index ? g.toNonIndexed() : g;
+      if (out !== g) g.dispose();
+      list.push(out);
     };
     for (const x of STRAP_X) {
-      // ratchet: base plate, handle, spool
-      add(new RoundedBoxGeometry(0.052, 0.095, 0.012, 1, 0.003), [x, pos.y, pos.z + 0.008], [-tilt, 0, 0]);
-      add(new RoundedBoxGeometry(0.046, 0.07, 0.01, 1, 0.003), [x, pos.y + 0.012, pos.z + 0.022], [-tilt - 0.25, 0, 0]);
-      const spool = new THREE.CylinderGeometry(0.011, 0.011, 0.056, 12, 1);
-      spool.rotateZ(Math.PI / 2);
-      add(spool, [x, pos.y - 0.02, pos.z + 0.016], [0, 0, 0]);
-      for (const sz of [1, -1]) add(new RoundedBoxGeometry(0.05, 0.004, 0.03, 1, 0.0015), [x, PALLET.h + 0.002, sz * ANCHOR_Z], [0, 0, 0]);
+      // zinc frame: base plate, two side plates, the release pawl
+      local(steelParts, new RoundedBoxGeometry(0.05, 0.088, 0.0025, 1, 0.001), x, [0, -0.004, 0.0028]);
+      for (const sx of [-1, 1]) local(steelParts, new RoundedBoxGeometry(0.003, 0.074, 0.028, 1, 0.001), x, [sx * 0.0255, -0.006, 0.016]);
+      local(steelParts, new RoundedBoxGeometry(0.03, 0.012, 0.004, 1, 0.0012), x, [0, 0.014, 0.03], 0.4);
+      // toothed spool: mandrel + two ratchet wheels, the strap wound on it
+      const mandrel = new THREE.CylinderGeometry(0.0065, 0.0065, 0.05, 12, 1);
+      mandrel.rotateZ(Math.PI / 2);
+      local(steelParts, mandrel, x, [0, -0.02, 0.017]);
+      for (const sx of [-1, 1]) local(steelParts, gearGeometry(14, 0.0148, 0.012, 0.0024), x, [sx * 0.0215, -0.02, 0.017]);
+      // handle: zinc arms, black grip, tilted away from the strap
+      for (const sx of [-1, 1]) local(steelParts, new RoundedBoxGeometry(0.0028, 0.066, 0.011, 1, 0.001), x, [sx * 0.0215, 0.022, 0.03], 0.26);
+      local(gripParts, new RoundedBoxGeometry(0.05, 0.024, 0.015, 2, 0.006), x, [0, 0.062, 0.041], 0.26);
+      // crate: D-ring on a floor plate at each strap end
+      if (inCrate) {
+        for (const sz of [1, -1]) {
+          const plate = new RoundedBoxGeometry(0.046, 0.003, 0.028, 1, 0.001).translate(x, floor + 0.0015, sz * (az + 0.004));
+          steelParts.push(plate);
+          const ring = new THREE.TorusGeometry(0.011, 0.0022, 6, 14, Math.PI);
+          ring.translate(x, floor + 0.002, sz * az);
+          const out = ring.toNonIndexed();
+          ring.dispose();
+          steelParts.push(out);
+        }
+        continue;
+      }
+      // J-hooks: from the strap end over the deck edge, curled under the top board
+      for (const sz of [1, -1]) {
+        const h = PALLET.h;
+        const e = DECK_EDGE;
+        const pts = [
+          [h + ANCHOR_Y + 0.008, e - 0.009],
+          [h + ANCHOR_Y - 0.01, e - 0.004],
+          [h + 0.004, e + 0.004],
+          [h - 0.012, e + 0.0055],
+          [h - 0.025, e + 0.003],
+          [h - 0.028, e - 0.01],
+          [h - 0.026, e - 0.024],
+        ].map(([y, z]) => new THREE.Vector3(x, y, z * sz));
+        const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 18, 0.0028, 6, false);
+        const out = tube.toNonIndexed();
+        tube.dispose();
+        steelParts.push(out);
+      }
     }
-    const hg = mergeGeometries(hw.map((g) => (g.index ? g.toNonIndexed() : g)));
-    hw.forEach((g) => g.dispose());
+    // the webbing wound on the spool (strap material, shows once the strap reaches it)
+    for (const x of STRAP_X) {
+      const roll = new THREE.CylinderGeometry(0.0105, 0.0105, STRAP_W, 14, 1);
+      roll.rotateZ(Math.PI / 2);
+      roll.translate(0, -0.02, 0.017);
+      basis.makeBasis(vX, vT, vN).setPosition(x + pos.x, pos.y, pos.z);
+      roll.applyMatrix4(basis);
+      roll.setAttribute('aAlong', new THREE.BufferAttribute(new Float32Array(roll.attributes.position.count).fill(buckleAlong), 1));
+      geos.push(roll);
+    }
+    const merged = mergeGeometries(geos);
+    geos.forEach((g) => g.dispose());
+    straps.geometry.dispose();
+    straps.geometry = merged;
+
+    const hg = mergeGeometries(steelParts);
+    steelParts.forEach((g) => g.dispose());
     hardware.geometry.dispose();
     hardware.geometry = hg;
+    const gg = mergeGeometries(gripParts);
+    gripParts.forEach((g) => g.dispose());
+    grips.geometry.dispose();
+    grips.geometry = gg;
   }
   buildStraps(PALLET.h);
-  root.add(straps, hardware);
+  root.add(straps, hardware, grips);
 
   // ---------------------------------------------------------------- crate
   const C = CRATE;
@@ -500,7 +696,7 @@ export function createProps({ stage, quality = 'high' }) {
   crate.position.y = PALLET.h;
   root.add(crate);
 
-  const decalMats = [];
+  const decalMats = decalMatsEarly;
   function decalMaterial(tex) {
     const m = new THREE.MeshStandardMaterial({
       map: tex,
@@ -525,6 +721,31 @@ export function createProps({ stage, quality = 'high' }) {
     const vh = h - 2 * C.bw;
     for (const sx of [-1, 1]) parts.push(board(vh, C.bw, C.bt, { pos: [sx * (w / 2 - C.bw / 2), 0, z], rot: [0, 0, Math.PI / 2], tint: plyEdge, seg, rand }));
     if (cross) parts.push(board(vh, C.bw, C.bt, { pos: [0, 0, z], rot: [0, 0, Math.PI / 2], tint: plyEdge, seg, rand }));
+    // nails in a zigzag along every batten
+    const zf = C.t / 2 + C.bt + 0.0006;
+    const zig = (i) => (i % 2 ? 0.016 : -0.016);
+    for (const sy of [-1, 1]) {
+      const yc = sy * (h / 2 - C.bw / 2);
+      const n = Math.max(3, Math.round((w - 0.2) / 0.1));
+      for (let i = 0; i <= n; i++) parts.push(nailHead([-w / 2 + 0.1 + ((w - 0.2) * i) / n, yc + zig(i), zf]));
+    }
+    const xs = [-1, 1].map((sx) => sx * (w / 2 - C.bw / 2));
+    if (cross) xs.push(0);
+    for (const xc of xs) {
+      const n = Math.max(2, Math.round((vh - 0.08) / 0.12));
+      for (let i = 0; i <= n; i++) parts.push(nailHead([xc + zig(i + 1), -vh / 2 + 0.04 + ((vh - 0.08) * i) / n, zf]));
+    }
+    // zinc corner brackets (L plates) with three screws each
+    const bz = C.t / 2 + C.bt + 0.0012;
+    for (const sx of [-1, 1]) {
+      for (const sy of [-1, 1]) {
+        const cx = sx * (w / 2);
+        const cy = sy * (h / 2);
+        parts.push(steelPart(new THREE.BoxGeometry(0.1, 0.046, 0.0024), [cx - sx * 0.05, cy - sy * 0.023, bz]));
+        parts.push(steelPart(new THREE.BoxGeometry(0.046, 0.054, 0.0024), [cx - sx * 0.023, cy - sy * 0.073, bz]));
+        for (const [dx, dy] of [[0.075, 0.023], [0.023, 0.023], [0.023, 0.078]]) parts.push(nailHead([cx - sx * dx, cy - sy * dy, bz + 0.0014], 'z', 0.0042));
+      }
+    }
     const geo = mergeGeometries(parts);
     parts.forEach((g) => g.dispose());
     const mesh = new THREE.Mesh(geo, wood);
@@ -744,6 +965,7 @@ export function createProps({ stage, quality = 'high' }) {
     U.strap.value = state.straps;
     straps.visible = state.straps > 0.001;
     hardware.visible = state.straps > buckleAlong;
+    grips.visible = hardware.visible;
 
     let anyPanel = false;
     for (const p of panels) {
@@ -805,15 +1027,22 @@ export function createProps({ stage, quality = 'high' }) {
     state.sparkT = 0;
   }
 
-  // Everything hidden, back at rest (the crate panels and pallet are reused). The label
-  // texture holds the entered name and city: it is dropped, not kept for the next order.
-  function reset() {
-    setRingText(RING_TEXT);
+  // The label texture holds the entered name and city: dropped as soon as the order view
+  // closes, never kept for the next order.
+  function clearLabel() {
+    state.label = 0;
+    label.visible = false;
     if (labelMat.map) {
       labelMat.map.dispose();
       labelMat.map = null;
       labelMat.needsUpdate = true;
     }
+  }
+
+  // Everything hidden, back at rest (the crate panels and pallet are reused).
+  function reset() {
+    setRingText(RING_TEXT);
+    clearLabel();
     Object.assign(state, {
       pallet: -0.17, clipGlow: 0, straps: 0, strapFloor: PALLET.h, ring: 0, ringPulse: 0, ringWrite: 1, shock: 0,
       base: 0, front: 0, back: 0, left: 0, right: 0, lid: 0, crateKick: 0, label: 0, flash: 0, sparkT: 99, spin: 0,
@@ -852,7 +1081,7 @@ export function createProps({ stage, quality = 'high' }) {
     root.traverse((o) => {
       o.geometry?.dispose();
     });
-    [wood, steel, strapMat, labelMat, ringMat, ...decalMats].forEach((m) => {
+    [wood, steel, blackGrip, strapMat, labelMat, ringMat, ...decalMats].forEach((m) => {
       m.map?.dispose();
       m.dispose();
     });
@@ -873,6 +1102,7 @@ export function createProps({ stage, quality = 'high' }) {
     dispose,
     setFrontStencil,
     setLabel,
+    clearLabel,
     setRingText,
     PALLET,
     CRATE,
