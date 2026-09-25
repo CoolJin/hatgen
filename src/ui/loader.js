@@ -5,6 +5,9 @@ import { reducedMotion } from '../core/env.js';
 import { clamp01 } from './util.js';
 
 const FAILSAFE_MS = 25000;
+// The mark's wipe-out clip leaves room around the logo, so its glow is never cut off.
+const MARKS_CLIP_IN = 'inset(-60% -25% -60% -25%)';
+const MARKS_CLIP_OUT = 'inset(-60% -25% -60% 125%)';
 
 export function createLoader() {
   const el = document.getElementById('loader');
@@ -75,7 +78,8 @@ export function createLoader() {
       }
 
       tl.to(marks, { scale: 1.04, duration: 0.35, ease: 'power2.out' }, '+=0.05')
-        .to([marks, bar], { clipPath: 'inset(0% 0% 0% 100%)', duration: 0.7, ease: 'expo.inOut', stagger: 0.06 }, '>-0.1')
+        .to(marks, { clipPath: MARKS_CLIP_OUT, duration: 0.7, ease: 'expo.inOut' }, '>-0.1')
+        .to(bar, { clipPath: 'inset(0% 0% 0% 100%)', duration: 0.7, ease: 'expo.inOut' }, '<0.06')
         .to(meta, { autoAlpha: 0, y: -6, duration: 0.4, ease: 'power2.in' }, '<')
         .set(el.querySelector('.loader__edge'), { opacity: 1 }, '>-0.25')
         .to(el, { '--cut': '0%', duration: 1.15, ease: 'expo.inOut' }, '<')
@@ -107,7 +111,8 @@ export function createLoader() {
   armFailsafe();
   if (el) {
     el.setAttribute('aria-busy', 'true');
-    gsap.set([el.querySelector('.loader__marks'), el.querySelector('.loader__bar')], { clipPath: 'inset(0% 0% 0% 0%)' });
+    gsap.set(el.querySelector('.loader__marks'), { clipPath: MARKS_CLIP_IN });
+    gsap.set(el.querySelector('.loader__bar'), { clipPath: 'inset(0% 0% 0% 0%)' });
     document.documentElement.classList.add('is-loading');
   }
   render();
